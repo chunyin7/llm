@@ -15,9 +15,9 @@ TokenList *tl_init() {
 }
 
 void tl_add(TokenList *tl, char *tok, size_t tok_len) {
-    if (tl->len >= tl->cap) {
-        tl->data = realloc(tl->data, tl->cap * 2);
+    if (tl->len >= tl->cap - 1) {
         tl->cap *= 2;
+        tl->data = realloc(tl->data, tl->cap * sizeof(char *));
     }
 
     tl->data[tl->len] = malloc(sizeof(char) * (tok_len + 1));
@@ -39,8 +39,7 @@ void tl_free(TokenList *tl) {
     return;
 }
 
-TokenList *tokenize(char *str, size_t len) {
-    TokenList *tl = tl_init();
+void tokenize(TokenList *tl, char *str, size_t len) {
     size_t start = 0;
 
     for (size_t end = 0; end < len; end++) {
@@ -77,7 +76,7 @@ TokenList *tokenize(char *str, size_t len) {
         }
     }
 
-    return tl;
+    return;
 }
 
 // util / debug
@@ -92,10 +91,33 @@ void tl_print(TokenList *tl) {
     return;
 }
 
+/* Load entire file into a NUL‐terminated buffer. */
+char *read_file(const char *path) {
+    FILE *f = fopen(path, "rb");
+    if (!f) return NULL;
+    if (fseek(f, 0, SEEK_END)) { fclose(f); return NULL; }
+    long len = ftell(f);
+    fseek(f, 0, SEEK_SET);
+
+    char *buf = malloc(len + 1);
+    if (!buf) { fclose(f); return NULL; }
+    if (fread(buf, 1, len, f) != (size_t)len) {
+        free(buf);
+        fclose(f);
+        return NULL;
+    }
+    buf[len] = '\0';
+    fclose(f);
+    return buf;
+}
+
 int main(void) {
-    char *test = "Hello, world. Is this-- a test?";
-    TokenList *tl = tokenize(test, strlen(test));
+    TokenList *tl = tl_init();
+    char *str = read_file("theverdict.txt");
+    tokenize(tl, str, strlen(str));
     tl_print(tl);
+
+    tl_free(tl);
 
     return 0;
 }
