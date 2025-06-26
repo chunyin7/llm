@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include "token.h"
 
+#include "hashmap/hashmap.h"
+
 TokenList *tl_init() {
     TokenList *tl = malloc(sizeof(TokenList));
     tl->len = 0;
@@ -12,33 +14,6 @@ TokenList *tl_init() {
     tl->data = malloc(tl->cap * sizeof(char *));
 
     return tl;
-}
-
-Vocabulary *voc_init() {
-    Vocabualry *voc = malloc(sizeof(Voc));
-    voc->len = 0;
-    voc->cap = 0;
-    voc->data = malloc(voc->cap * sizeof(char *));
-}
-
-void voc_add(Vocabulary *voc, char *tok, size_t tok_len) {
-    for (size_t i = 0; i < voc->len; i++) {
-        if (strcmp(voc[i], tok) == 0) {
-            return;
-        }
-    }
-
-    if (voc->len >= voc->cap - 1) {
-        voc->cap *= 2;
-        voc->data = realloc(voc->data, voc->cap * sizeof(char *));
-    }
-
-    voc->data[voc->len] = malloc(sizeof(char) * (tok_len + 1));
-    memcpy(voc->data[voc->len], tok, tok_len);
-    voc->data[voc->len][tok_len] = '\0';
-    voc->len++;
-
-    return;
 }
 
 // util
@@ -56,12 +31,15 @@ int cmp(const void *a, const void *b) {
     return strlen(b) - strlen(a);
 }
 
-void build_voc(TokenList *tl, Vocabulary *voc) {
+void build_voc(TokenList *tl, Map *voc) {
+    // sort the tokens alphabetically
+    qsort(tl->data, tl->len, sizeof(char *), cmp);
+
     for (size_t i = 0; i < tl->len; i++) {
-        voc_add(voc, tl->data[i], strlen(tl->data[i]));
+        map_get_or_add(voc, tl->data[i]);
     }
 
-    qsort(voc->data, voc->len, sizeof(char *), cmp);
+    return;
 }
 
 void tl_add(TokenList *tl, char *tok, size_t tok_len) {

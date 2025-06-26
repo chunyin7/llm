@@ -1,4 +1,8 @@
 #include "hashmap.h"
+#include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
+#include <stdio.h>
 
 // FNV-1a 64-bit hash function
 static uint64_t fnv_1a(const char *str) {
