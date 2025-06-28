@@ -65,7 +65,7 @@ static void map_resize(Map *map) {
     return;
 }
 
-size_t map_get_or_add(Map *map, char *key) {
+long map_get_or_add(Map *map, char *key) {
     if ((double) map->len / map->cap > LOAD_FACTOR) {
         map_resize(map);
     }

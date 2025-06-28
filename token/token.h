@@ -9,6 +9,11 @@ typedef struct {
     size_t len, cap;
 } TokenList;
 
+typedef struct {
+    long *data;
+    size_t len, cap;
+} IDList;
+
 Map *voc_init();
 
 TokenList *tl_init();
@@ -26,5 +31,11 @@ void tokenize(TokenList *tl, char *str, size_t len);
 void tl_print(TokenList *tl);
 
 void voc_print(Map *voc);
+
+IDList *encode(char *str);
+
+void id_print(IDList *ids);
+
+void id_free(IDList *ids);
 
 #endif

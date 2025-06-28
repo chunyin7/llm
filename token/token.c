@@ -16,6 +16,15 @@ TokenList *tl_init() {
     return tl;
 }
 
+IDList *id_init() {
+    IDList *ids = malloc(sizeof(TokenList));
+    ids->len = 0;
+    ids->cap = 16;
+    ids->data = malloc(ids->cap * sizeof(long));
+
+    return ids;
+}
+
 // util
 int cmp(const void *a, const void *b) {
     char *str_a = (char *) a;
@@ -39,7 +48,7 @@ void build_voc(TokenList *tl, Map *voc) {
 void voc_print(Map *voc) {
     for (size_t i = 0; i < voc->cap; i++) {
         if (voc->entries[i].key) { 
-            printf("('%s', %d)\n", voc->entries[i].key, voc->entries[i].val);
+            printf("('%s', %ld)\n", voc->entries[i].key, voc->entries[i].val);
         }
     }
 }
@@ -58,6 +67,18 @@ void tl_add(TokenList *tl, char *tok, size_t tok_len) {
     return;
 }
 
+void id_add(IDList *ids, long id) {
+    if (ids->len >= ids->cap - 1) {
+        ids->cap *= 2;
+        ids->data = realloc(ids->data, ids->cap * sizeof(long));
+    }
+
+    ids->data[ids->len] = id;
+    ids->len++;
+
+    return;
+}
+
 void tl_free(TokenList *tl) {
     for (size_t i = 0; i < tl->len; i++) {
         free(tl->data[i]);
@@ -65,6 +86,13 @@ void tl_free(TokenList *tl) {
 
     free(tl->data);
     free(tl);
+
+    return;
+}
+
+void id_free(IDList *ids) {
+    free(ids->data);
+    free(ids);
 
     return;
 }
@@ -119,5 +147,34 @@ void tl_print(TokenList *tl) {
     printf(" ]\n");
 
     return;
+}
+
+void id_print(IDList *ids) {
+    printf("TOKEN LIST, length: %zu, capacity: %zu:\n", ids->len, ids->cap);
+    printf("[ ");
+    for (size_t i = 0; i < ids->len; i++) {
+        printf("'%ld' ", ids->data[i]);
+    }
+    printf(" ]\n");
+
+    return;
+}
+
+IDList *encode(char *str) {
+    TokenList *tl = tl_init();
+    tokenize(tl, str, strlen(str));
+
+    Map *voc = map_init();
+    build_voc(tl, voc);
+
+    // convert token list to ids
+    IDList *ids = id_init();
+    for (size_t i = 0; i < tl->len; i++) {
+        id_add(ids, map_get_or_add(voc, tl->data[i]));
+    }
+
+    tl_free(tl);
+    map_free(voc);
+    return ids;
 }
 

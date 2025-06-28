@@ -9,7 +9,7 @@
 
 typedef struct {
     char *key; // string key
-    int val; // int id value
+    long val; // int id value
 } Entry;
 
 // Hashmap struct
@@ -22,6 +22,6 @@ Map *map_init();
 
 void map_free(Map *map);
 
-size_t map_get_or_add(Map *map, char *key);
+long map_get_or_add(Map *map, char *key);
 
 #endif

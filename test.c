@@ -23,19 +23,11 @@ char *read_file(const char *path) {
 }
 
 int main(void) {
-    TokenList *tl = tl_init();
     char *str = read_file("./token/theverdict.txt");
-    tokenize(tl, str, strlen(str));
-    printf("tokenized\n");
+    IDList *ids = encode(str);
+    id_print(ids);
+    id_free(ids);
 
-    Map *voc = map_init();
-    build_voc(tl, voc);
-    printf("vocab map built\n");
-    voc_print(voc);
-
-    map_free(voc);
-    tl_free(tl);
     free(str);
-
     return 0;
 }
