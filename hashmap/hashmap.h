@@ -5,6 +5,8 @@
 #define INIT_CAP 1024
 #define LOAD_FACTOR 0.7
 
+#include <stdio.h>
+
 typedef struct {
     char *key; // string key
     int val; // int id value
@@ -16,10 +18,10 @@ typedef struct {
     size_t cap, len;
 } Map;
 
-void map_init();
+Map *map_init();
 
 void map_free(Map *map);
 
-void map_get_or_add(Map *map, char *key);
+size_t map_get_or_add(Map *map, char *key);
 
 #endif

@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "token.h"
 
-#include "hashmap/hashmap.h"
+#include "token.h"
+#include "../hashmap/hashmap.h"
 
 TokenList *tl_init() {
     TokenList *tl = malloc(sizeof(TokenList));
@@ -21,25 +21,27 @@ int cmp(const void *a, const void *b) {
     char *str_a = (char *) a;
     char *str_b = (char *) b;
 
-    size_t i = 0;
-    while (str_a[i] != '\0' && str_b[i] != '\0') {
-        if (str_a[i] != str_b[i]) {
-            return str_b[i] - str_a[i];
-        }
-    }
-
-    return strlen(b) - strlen(a);
+    return strcmp(str_a, str_b);
 }
 
 void build_voc(TokenList *tl, Map *voc) {
     // sort the tokens alphabetically
     qsort(tl->data, tl->len, sizeof(char *), cmp);
+    printf("sorted\n");
 
     for (size_t i = 0; i < tl->len; i++) {
         map_get_or_add(voc, tl->data[i]);
     }
 
     return;
+}
+
+void voc_print(Map *voc) {
+    for (size_t i = 0; i < voc->cap; i++) {
+        if (voc->entries[i].key) { 
+            printf("('%s', %d)\n", voc->entries[i].key, voc->entries[i].val);
+        }
+    }
 }
 
 void tl_add(TokenList *tl, char *tok, size_t tok_len) {
@@ -119,33 +121,3 @@ void tl_print(TokenList *tl) {
     return;
 }
 
-/* Load entire file into a NUL‐terminated buffer. */
-char *read_file(const char *path) {
-    FILE *f = fopen(path, "rb");
-    if (!f) return NULL;
-    if (fseek(f, 0, SEEK_END)) { fclose(f); return NULL; }
-    long len = ftell(f);
-    fseek(f, 0, SEEK_SET);
-
-    char *buf = malloc(len + 1);
-    if (!buf) { fclose(f); return NULL; }
-    if (fread(buf, 1, len, f) != (size_t)len) {
-        free(buf);
-        fclose(f);
-        return NULL;
-    }
-    buf[len] = '\0';
-    fclose(f);
-    return buf;
-}
-
-int main(void) {
-    TokenList *tl = tl_init();
-    char *str = read_file("theverdict.txt");
-    tokenize(tl, str, strlen(str));
-    tl_print(tl);
-
-    tl_free(tl);
-
-    return 0;
-}
