@@ -36,7 +36,6 @@ int cmp(const void *a, const void *b) {
 void build_voc(TokenList *tl, Map *voc) {
     // sort the tokens alphabetically
     qsort(tl->data, tl->len, sizeof(char *), cmp);
-    printf("sorted\n");
 
     for (size_t i = 0; i < tl->len; i++) {
         map_get_or_add(voc, tl->data[i]);
@@ -132,6 +131,14 @@ void tokenize(TokenList *tl, char *str, size_t len) {
 
             start = end + 1;
         }
+    }
+
+    if (start != len) {
+        char *tmp = malloc(sizeof(char) * (len - start + 1));
+        memcpy(tmp, str + start, len - start);
+        tmp[len - start] = '\0';
+        tl_add(tl, tmp, len - start);
+        free(tmp);
     }
 
     return;
