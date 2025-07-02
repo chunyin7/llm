@@ -5,22 +5,25 @@
 #include "../hashmap/hashmap.h"
 
 typedef struct {
-    char **data;
-    size_t len, cap;
+  char **data;
+  size_t len, cap;
 } TokenList;
 
 typedef struct {
-    long *data;
-    size_t len, cap;
+  long *data;
+  size_t len, cap;
 } IDList;
 
-Map *voc_init();
+typedef struct {
+  Map *t2i;
+  TokenList *i2t;
+} Vocabulary;
 
 TokenList *tl_init();
 
-void voc_add(Map *voc, char *tok, size_t tok_len);
+Vocabulary *voc_init();
 
-void build_voc(TokenList *tl, Map *voc);
+void build_voc(TokenList *tl, Vocabulary *voc);
 
 void tl_add(TokenList *tl, char *tok, size_t tok_len);
 
@@ -32,7 +35,7 @@ void tl_print(TokenList *tl);
 
 void voc_print(Map *voc);
 
-IDList *encode(char *str);
+IDList *encode(char *str, Vocabulary *voc);
 
 void id_print(IDList *ids);
 
