@@ -37,6 +37,8 @@ void voc_print(Map *voc);
 
 IDList *encode(char *str, Vocabulary *voc);
 
+char *decode(IDList *ids, Vocabulary *voc);
+
 void id_print(IDList *ids);
 
 void id_free(IDList *ids);

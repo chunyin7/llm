@@ -94,20 +94,10 @@ void tokenize(TokenList *tl, char *str, size_t len) {
   for (size_t end = 0; end < len; end++) {
     if (isalnum(str[end])) {
       continue;
-    } else if (isspace(str[end])) {
-      if (start != end) {
-        char *tmp = malloc(sizeof(char) * (end - start + 1));
-        memcpy(tmp, str + start, end - start);
-        tmp[end - start] = '\0';
-        tl_add(tl, tmp, end - start);
-        free(tmp);
-      }
-
-      start = end + 1;
     } else {
-      // punctuation
+      // punctuation or whitespace
       // first add the entire word preceding the punctuation
-      if (end - start > 1) {
+      if (end - start > 0) {
         char *tmp = malloc(sizeof(char) * (end - start + 1));
         memcpy(tmp, str + start, end - start);
         tmp[end - start] = '\0';
@@ -173,3 +163,23 @@ IDList *encode(char *str, Vocabulary *voc) {
   return ids;
 }
 
+char *decode(IDList *ids, Vocabulary *voc) {
+  size_t cap = 16;
+  size_t len = 0;
+  char *s = malloc(sizeof(char) * cap);
+
+  for (size_t i = 0; i < ids->len; i++) {
+    char *substr = voc->i2t->data[ids->data[i]];
+    size_t l = strlen(substr);
+    while (len + l >= cap - 1) {
+      cap *= 2;
+      s = realloc(s, cap);
+    }
+
+    memcpy(s + len, substr, l);
+    len += l;
+  }
+
+  s[len] = '\0';
+  return s;
+}
