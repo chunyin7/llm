@@ -31,7 +31,8 @@ int main(void) {
   Vocabulary *voc = voc_init();
   build_voc(tl, voc);
 
-  Array *ids = encode(str, voc);
+  char *str2 = "Hello, do you like tea?";
+  Array *ids = encode(str2, voc);
   char *s = decode(ids, voc);
   printf("%s\n", s);
 

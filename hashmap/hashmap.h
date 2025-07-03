@@ -22,6 +22,8 @@ Map *map_init();
 
 void map_free(Map *map);
 
-long map_get_or_add(Map *map, char *key);
+long map_add(Map *map, char *key);
+
+long map_get(Map *map, char *key);
 
 #endif

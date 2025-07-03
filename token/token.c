@@ -18,13 +18,20 @@ Vocabulary *voc_init() {
 
 void build_voc(Array *tl, Vocabulary *voc) {
   for (size_t i = 0; i < tl->len; i++) {
-    int r = map_get_or_add(voc->t2i, ((char **)tl->data)[i]);
+    int r = map_add(voc->t2i, ((char **)tl->data)[i]);
     if (r == voc->i2t->len) {
-      char *tmp = malloc(sizeof(char) * (strlen(((char **)tl->data)[i]) + 1));
-      strcpy(tmp, ((char **)tl->data)[i]);
+      char *tmp = strdup(((char **)tl->data)[i]);
       arr_append(voc->i2t, &tmp);
     }
   }
+
+  char *tmp = strdup("<|unk|>");
+  int r = map_add(voc->t2i, tmp);
+  if (r == voc->i2t->len) arr_append(voc->i2t, &tmp);
+
+  tmp = strdup("<|endoftext|>");
+  r = map_add(voc->t2i, tmp);
+  if (r == voc->i2t->len) arr_append(voc->i2t, &tmp);
 
   return;
 }
@@ -72,7 +79,8 @@ Array *encode(char *str, Vocabulary *voc) {
   // convert token list to ids
   Array *ids = arr_init(sizeof(long));
   for (size_t i = 0; i < tl->len; i++) {
-    long id = map_get_or_add(voc->t2i, ((char **) tl->data)[i]);
+    long id = map_get(voc->t2i, ((char **) tl->data)[i]);
+    if (id == -1) id = map_get(voc->t2i, "<|unk|>");
     arr_append(ids, &id);
   }
 

@@ -65,7 +65,7 @@ static void map_resize(Map *map) {
     return;
 }
 
-long map_get_or_add(Map *map, char *key) {
+long map_add(Map *map, char *key) {
     if ((double) map->len / map->cap > LOAD_FACTOR) {
         map_resize(map);
     }
@@ -76,12 +76,26 @@ long map_get_or_add(Map *map, char *key) {
             return map->entries[h].val;
         }
 
-        h++;
-        h &= map->cap - 1;
-    }
+    h++;
+    h &= map->cap - 1;
+  }
 
     // insert
     map->entries[h].key = strdup(key);
     map->entries[h].val = map->len;
     return map->len++;
+}
+
+long map_get(Map *map, char *key) {
+  uint64_t h = fnv_1a(key) & (map->cap - 1);
+  while (map->entries[h].key) {
+    if (strcmp(map->entries[h].key, key) == 0) {
+      return map->entries[h].val;
+    }
+
+    h++;
+    h &= map->cap - 1;
+  }
+
+  return -1;
 }
