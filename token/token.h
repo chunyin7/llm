@@ -3,44 +3,21 @@
 
 #include <stdlib.h>
 #include "../hashmap/hashmap.h"
-
-typedef struct {
-  char **data;
-  size_t len, cap;
-} TokenList;
-
-typedef struct {
-  long *data;
-  size_t len, cap;
-} IDList;
+#include "../arr/array.h"
 
 typedef struct {
   Map *t2i;
-  TokenList *i2t;
+  Array *i2t;
 } Vocabulary;
-
-TokenList *tl_init();
 
 Vocabulary *voc_init();
 
-void build_voc(TokenList *tl, Vocabulary *voc);
+void build_voc(Array *tl, Vocabulary *voc);
 
-void tl_add(TokenList *tl, char *tok, size_t tok_len);
+void tokenize(Array *tokens, char *str, size_t len);
 
-void tl_free(TokenList *tl);
+Array *encode(char *str, Vocabulary *voc);
 
-void tokenize(TokenList *tl, char *str, size_t len);
-
-void tl_print(TokenList *tl);
-
-void voc_print(Map *voc);
-
-IDList *encode(char *str, Vocabulary *voc);
-
-char *decode(IDList *ids, Vocabulary *voc);
-
-void id_print(IDList *ids);
-
-void id_free(IDList *ids);
+char *decode(Array *ids, Vocabulary *voc);
 
 #endif

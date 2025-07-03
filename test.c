@@ -1,5 +1,6 @@
 #include "token/token.h"
 #include "hashmap/hashmap.h"
+#include "arr/array.h"
 #include <string.h>
 
 /* Load entire file into a NUL‐terminated buffer. */
@@ -24,11 +25,13 @@ char *read_file(const char *path) {
 
 int main(void) {
   char *str = read_file("./token/theverdict.txt");
-  TokenList *tl = tl_init();
+  Array *tl = arr_init(sizeof(char *));
   tokenize(tl, str, strlen(str));
+
   Vocabulary *voc = voc_init();
   build_voc(tl, voc);
-  IDList *ids = encode(str, voc);
+
+  Array *ids = encode(str, voc);
   char *s = decode(ids, voc);
   printf("%s\n", s);
 
