@@ -18,7 +18,7 @@ Vocabulary *voc_init() {
 
 void build_voc(Array *tl, Vocabulary *voc) {
   for (size_t i = 0; i < tl->len; i++) {
-    int r = map_add(voc->t2i, ((char **)tl->data)[i]);
+    int r = map_add(voc->t2i, ((char **)tl->data)[i], voc->t2i->len);
     if (r == voc->i2t->len) {
       char *tmp = strdup(((char **)tl->data)[i]);
       arr_append(voc->i2t, &tmp);
@@ -26,11 +26,11 @@ void build_voc(Array *tl, Vocabulary *voc) {
   }
 
   char *tmp = strdup("<|unk|>");
-  int r = map_add(voc->t2i, tmp);
+  int r = map_add(voc->t2i, tmp, voc->t2i->len);
   if (r == voc->i2t->len) arr_append(voc->i2t, &tmp);
 
   tmp = strdup("<|endoftext|>");
-  r = map_add(voc->t2i, tmp);
+  r = map_add(voc->t2i, tmp, voc->t2i->len);
   if (r == voc->i2t->len) arr_append(voc->i2t, &tmp);
 
   return;
@@ -107,4 +107,10 @@ char *decode(Array *ids, Vocabulary *voc) {
 
   s[len] = '\0';
   return s;
+}
+
+Vocabulary *bpe(char *str) {
+  Vocabulary *voc = voc_init();
+
+  return voc;
 }

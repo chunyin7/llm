@@ -65,7 +65,7 @@ static void map_resize(Map *map) {
     return;
 }
 
-long map_add(Map *map, char *key) {
+long map_add(Map *map, char *key, long val) {
     if ((double) map->len / map->cap > LOAD_FACTOR) {
         map_resize(map);
     }
@@ -80,10 +80,33 @@ long map_add(Map *map, char *key) {
     h &= map->cap - 1;
   }
 
-    // insert
-    map->entries[h].key = strdup(key);
-    map->entries[h].val = map->len;
-    return map->len++;
+  // insert
+  map->entries[h].key = strdup(key);
+  map->entries[h].val = val;
+  map->len++;
+  return val;
+}
+
+void map_update(Map *map, char *key, long val) {
+  if ((double) map->len / map->cap > LOAD_FACTOR) {
+    map_resize(map);
+  }
+
+  uint64_t h = fnv_1a(key) & (map->cap - 1);
+  while (map->entries[h].key) {
+    if (strcmp(map->entries[h].key, key) == 0) {
+      map->entries[h].val = val;
+    }
+
+    h++;
+    h &= map->cap - 1;
+  }
+
+  // not in the hashmap yet
+  // insert
+  map->entries[h].key = strdup(key);
+  map->entries[h].val = val;
+  map->len++;
 }
 
 long map_get(Map *map, char *key) {
