@@ -1,7 +1,8 @@
 #include "token/token.h"
-#include "hashmap/hashmap.h"
 #include "arr/array.h"
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 /* Load entire file into a NUL‐terminated buffer. */
 char *read_file(const char *path) {
@@ -25,7 +26,7 @@ char *read_file(const char *path) {
 
 int main(void) {
   char *str = read_file("./token/theverdict.txt");
-  Array *tl = arr_init(sizeof(char *));
+  Array *tl = arr_init(sizeof(Token));
   tokenize(tl, str, strlen(str));
 
   Vocabulary *voc = voc_init();
@@ -33,13 +34,14 @@ int main(void) {
 
   char *str2 = "Hello, do you like tea?";
   Array *ids = encode(str2, voc);
-  char *s = decode(ids, voc);
-  printf("%s\n", s);
+  Array *s = decode(ids, voc);
+  printf("%s\n", (char *) s->data);
 
   free(str);
-  free(s);
-  free(tl);
-  free(ids);
-  free(voc);
+  arr_free(s);
+  
+  arr_free(tl);
+  voc_free(voc);
+  arr_free(ids);
   return 0;
 }

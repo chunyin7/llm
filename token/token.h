@@ -2,7 +2,7 @@
 #define TOKEN
 
 #include <stdlib.h>
-#include "../hashmap/hashmap.h"
+#include "tokenmap/tokenmap.h"
 #include "../arr/array.h"
 
 typedef struct {
@@ -18,6 +18,8 @@ void tokenize(Array *tokens, char *str, size_t len);
 
 Array *encode(char *str, Vocabulary *voc);
 
-char *decode(Array *ids, Vocabulary *voc);
+Array *decode(Array *ids, Vocabulary *voc);
+
+void voc_free(Vocabulary *voc);
 
 #endif

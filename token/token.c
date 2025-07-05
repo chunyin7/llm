@@ -1,37 +1,55 @@
 // word tokenizer
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
 #include "token.h"
-#include "../hashmap/hashmap.h"
+#include "tokenmap/tokenmap.h"
 #include "../arr/array.h"
 
 Vocabulary *voc_init() {
   Vocabulary *voc = malloc(sizeof(Vocabulary));
   voc->t2i = map_init();
-  voc->i2t = arr_init(sizeof(char *));
+  voc->i2t = arr_init(sizeof(Token));
 
   return voc;
 }
 
-void build_voc(Array *tl, Vocabulary *voc) {
-  for (size_t i = 0; i < tl->len; i++) {
-    int r = map_add(voc->t2i, ((char **)tl->data)[i], voc->t2i->len);
-    if (r == voc->i2t->len) {
-      char *tmp = strdup(((char **)tl->data)[i]);
-      arr_append(voc->i2t, &tmp);
+Token *tok_dup(Token *tok) {
+  Token *cpy = malloc(sizeof(Token));
+  cpy->type = tok->type;
+  
+  if (tok->bytes == NULL) {
+    cpy->bytes = NULL;
+  } else {
+    cpy->bytes = arr_init(sizeof(uint8_t));
+    for (size_t i = 0; i < tok->bytes->len; i++) {
+      arr_append(cpy->bytes, &((uint8_t *)tok->bytes->data)[i]);
     }
   }
 
-  char *tmp = strdup("<|unk|>");
-  int r = map_add(voc->t2i, tmp, voc->t2i->len);
-  if (r == voc->i2t->len) arr_append(voc->i2t, &tmp);
+  return cpy;
+}
 
-  tmp = strdup("<|endoftext|>");
-  r = map_add(voc->t2i, tmp, voc->t2i->len);
-  if (r == voc->i2t->len) arr_append(voc->i2t, &tmp);
+void voc_add(Vocabulary *voc, Token tok) {
+  int r = map_add(voc->t2i, tok, voc->t2i->len);
+  if (r == voc->i2t->len) {
+    arr_append(voc->i2t, &tok);
+  }
+}
+
+void build_voc(Array *tl, Vocabulary *voc) {
+  for (size_t i = 0; i < tl->len; i++) {
+    voc_add(voc, ((Token *)tl->data)[i]);
+  }
+
+  Token unk = { .bytes = NULL, .type = UNK };
+  voc_add(voc, unk);
+
+  Token eos = { .bytes = NULL, .type = EOS };
+  voc_add(voc, eos);
 
   return;
 }
@@ -46,16 +64,13 @@ void tokenize(Array *tokens, char *str, size_t len) {
       // punctuation or whitespace
       // first add the entire word preceding the punctuation
       if (end - start > 0) {
-        char *tmp = malloc(sizeof(char) * (end - start + 1));
-        memcpy(tmp, str + start, end - start);
-        tmp[end - start] = '\0';
+        Token tmp = { .type = RAW, .bytes = arr_dup(str + start, end - start, sizeof(uint8_t)) };
         arr_append(tokens, &tmp);
       }
 
       // then add the punctuation
-      char *tmp = malloc(sizeof(char) * 2);
-      tmp[0] = str[end];
-      tmp[1] = '\0';
+      Token tmp = { .type = RAW, .bytes = arr_init(sizeof(uint8_t)) };
+      arr_append(tmp.bytes, str + end);
       arr_append(tokens, &tmp);
 
       start = end + 1;
@@ -63,9 +78,7 @@ void tokenize(Array *tokens, char *str, size_t len) {
   }
 
   if (start != len) {
-    char *tmp = malloc(sizeof(char) * (len - start + 1));
-    memcpy(tmp, str + start, len - start);
-    tmp[len - start] = '\0';
+    Token tmp = { .type = RAW, .bytes = arr_dup(str + start, len - start, sizeof(uint8_t)) };
     arr_append(tokens, &tmp);
   }
 
@@ -73,44 +86,84 @@ void tokenize(Array *tokens, char *str, size_t len) {
 }
 
 Array *encode(char *str, Vocabulary *voc) {
-  Array *tl = arr_init(sizeof(char *));
+  Array *tl = arr_init(sizeof(Token));
   tokenize(tl, str, strlen(str));
 
   // convert token list to ids
   Array *ids = arr_init(sizeof(long));
   for (size_t i = 0; i < tl->len; i++) {
-    long id = map_get(voc->t2i, ((char **) tl->data)[i]);
-    if (id == -1) id = map_get(voc->t2i, "<|unk|>");
+    long id = map_get(voc->t2i, ((Token *) tl->data)[i]);
+    if (id == -1) {
+      Token unk = { .type = UNK, .bytes = NULL };
+      id = map_get(voc->t2i, unk);
+    }
+
     arr_append(ids, &id);
+  }
+
+  for (size_t i = 0; i < tl->len; i++) {
+    Token *tok = &(((Token *)tl->data)[i]);
+    if (tok->bytes) {
+      free(tok->bytes);
+    }
   }
 
   arr_free(tl);
   return ids;
 }
 
-char *decode(Array *ids, Vocabulary *voc) {
-  size_t cap = 16;
-  size_t len = 0;
-  char *s = malloc(sizeof(char) * cap);
+Array *decode(Array *ids, Vocabulary *voc) {
+  Array *s = arr_init(sizeof(uint8_t));
 
   for (size_t i = 0; i < ids->len; i++) {
-    char *substr = ((char **)voc->i2t->data)[((long *)ids->data)[i]];
-    size_t l = strlen(substr);
-    while (len + l >= cap - 1) {
-      cap *= 2;
-      s = realloc(s, cap);
-    }
+    Token tok = ((Token *)voc->i2t->data)[((long *)ids->data)[i]];
+    if (tok.bytes != NULL) {
+      for (size_t j = 0; j < tok.bytes->len; j++) {
+        arr_append(s, &((uint8_t *)tok.bytes->data)[j]);
+      }
+    } else {
+      char *tmp;
+      switch (tok.type) {
+        case UNK:
+          tmp = "<|unk|>";
+          break;
+        case EOS:
+          tmp = "<|eos|>";
+          break;
+        default:
+          tmp = "";
+          break;
+      };
 
-    memcpy(s + len, substr, l);
-    len += l;
+      for (size_t i = 0; i < strlen(tmp); i++) {
+        arr_append(s, tmp + i);
+      }
+    }
   }
 
-  s[len] = '\0';
+  char null = '\0';
+  arr_append(s, &null);
   return s;
 }
 
+void voc_free(Vocabulary *voc) {
+  // The hashmap owns the tokens and will free them
+  map_free(voc->t2i);
+  // i2t array just has references, so only free the array itself
+  arr_free(voc->i2t);
+  free(voc);
+}
+
+/*
 Vocabulary *bpe(char *str) {
   Vocabulary *voc = voc_init();
 
+  // STEP 1: pre-load with all individual bytes
+  char buf[7];
+  for (unsigned char u = 0; u <= 255; u++) {
+    snprintf(buf, sizeof(buf), "<0x%02X>", u); // store bytes in hex string
+    voc_add(voc, buf);
+  }
   return voc;
 }
+*/
