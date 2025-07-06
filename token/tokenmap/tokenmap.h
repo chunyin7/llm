@@ -19,7 +19,7 @@ typedef enum {
 } TokenType;
 
 typedef struct {
-  Array *bytes; // dynamic byte array (uint8_t)
+  Array *ids; // dynamic byte array (uint16_t)
   TokenType type;
 } Token;
 

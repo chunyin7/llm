@@ -20,4 +20,7 @@ int arr_cmp(Array *a, Array *b);
 // create a dynamic array version of a C array
 Array *arr_dup(void *arr, size_t len, size_t size);
 
+// create a joined array
+Array *arr_join(Array *a, Array *b);
+
 #endif

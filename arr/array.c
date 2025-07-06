@@ -63,3 +63,21 @@ Array *arr_dup(void *arr, size_t len, size_t size) {
 
   return cpy;
 }
+
+Array *arr_join(Array *a, Array *b) {
+  if (a->size != b->size) {
+    return NULL;
+  }
+
+  Array *arr = arr_init(a->size);
+
+  for (size_t i = 0; i < a->len; i++) {
+    arr_append(arr, (char *)a->data + a->size * i);
+  }
+
+  for (size_t i = 0; i < b->len; i++) {
+    arr_append(arr, (char *)b->data + b->size * i);
+  }
+
+  return arr;
+}

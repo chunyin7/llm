@@ -12,10 +12,10 @@ static uint64_t fnv_1a(const Array *arr) {
         return h;
     }
     
-    uint8_t *bytes = (uint8_t *)arr->data;
+    uint8_t *ids = (uint8_t *)arr->data;
 
     for (int i = 0; i < arr->len; i++) {
-        h ^= bytes[i];
+        h ^= ids[i];
         h *= 1099511628211ULL; // FNV prime
   }
 
@@ -39,7 +39,7 @@ Map *map_init() {
 void map_free(Map *map) {
     for (size_t i = 0; i < map->cap; i++) {
         if (map->entries[i].occupied) {
-            free(map->entries[i].key.bytes);
+            free(map->entries[i].key.ids);
         }
     }
 
@@ -63,7 +63,7 @@ static void map_resize(Map *map) {
   // rehash all entries
   for (size_t i = 0; i < old_cap; i++) {
     if (old[i].occupied) {
-      uint64_t h = fnv_1a(old[i].key.bytes) & (map->cap - 1);
+      uint64_t h = fnv_1a(old[i].key.ids) & (map->cap - 1);
 
       // linearly probe with open addressing
       while (map->entries[h].occupied) {
@@ -84,9 +84,9 @@ long map_add(Map *map, Token key, long val) {
     map_resize(map);
   }
 
-  uint64_t h = fnv_1a(key.bytes) & (map->cap - 1);
+  uint64_t h = fnv_1a(key.ids) & (map->cap - 1);
   while (map->entries[h].occupied) {
-    if (arr_cmp(map->entries[h].key.bytes, key.bytes) && map->entries[h].key.type == key.type) {
+    if (arr_cmp(map->entries[h].key.ids, key.ids) && map->entries[h].key.type == key.type) {
       return map->entries[h].val;
     }
 
@@ -107,9 +107,9 @@ void map_update(Map *map, Token key, long val) {
     map_resize(map);
   }
 
-  uint64_t h = fnv_1a(key.bytes) & (map->cap - 1);
+  uint64_t h = fnv_1a(key.ids) & (map->cap - 1);
   while (map->entries[h].occupied) {
-    if (arr_cmp(map->entries[h].key.bytes, key.bytes) && map->entries[h].key.type == key.type) {
+    if (arr_cmp(map->entries[h].key.ids, key.ids) && map->entries[h].key.type == key.type) {
       map->entries[h].val = val;
     }
 
@@ -125,9 +125,9 @@ void map_update(Map *map, Token key, long val) {
 }
 
 long map_get(Map *map, Token key) {
-  uint64_t h = fnv_1a(key.bytes) & (map->cap - 1);
+  uint64_t h = fnv_1a(key.ids) & (map->cap - 1);
   while (map->entries[h].occupied) {
-    if (arr_cmp(map->entries[h].key.bytes, key.bytes) && map->entries[h].key.type == key.type) {
+    if (arr_cmp(map->entries[h].key.ids, key.ids) && map->entries[h].key.type == key.type) {
       return map->entries[h].val;
     }
 
