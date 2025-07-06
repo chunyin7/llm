@@ -154,16 +154,60 @@ void voc_free(Vocabulary *voc) {
   free(voc);
 }
 
-/*
-Vocabulary *bpe(char *str) {
+Vocabulary *bpe(uint8_t *in, size_t len) {
   Vocabulary *voc = voc_init();
 
   // STEP 1: pre-load with all individual bytes
-  char buf[7];
   for (unsigned char u = 0; u <= 255; u++) {
-    snprintf(buf, sizeof(buf), "<0x%02X>", u); // store bytes in hex string
-    voc_add(voc, buf);
+    Token tok = { .type = RAW, .bytes = arr_init(sizeof(uint8_t)) };
+    arr_append(tok.bytes, &u);
+    voc_add(voc, tok);
   }
+
+  // add special tokens
+  Token eos = { .type = EOS, .bytes = NULL };
+  voc_add(voc, eos);
+
+  Token eow = { .type = EOW, .bytes = NULL };
+  voc_add(voc, eow);
+
+  // STEP 2: divide the string into an 2d token arrays
+  Array *words = arr_init(sizeof(Array *));
+  Array *cur = arr_init(sizeof(Token));
+
+  size_t start = 0;
+
+  for (size_t end = 0; end < len; end++) {
+    if (isalnum(in[end])) {
+      Token b = { .type = RAW, .bytes = arr_init(sizeof(uint8_t)) };
+      arr_append(b.bytes, in + end);
+      arr_append(cur, &b);
+    } else {
+      // punctuation or whitespace
+      // first add the entire word preceding the punctuation
+      if (end - start > 0) {
+        arr_append(words, &cur);
+      }
+
+      // then add the punctuation
+      cur = arr_init(sizeof(Token));
+      Token tmp = { .type = RAW, .bytes = arr_init(sizeof(uint8_t)) };
+      arr_append(tmp.bytes, in + end);
+      arr_append(cur, &tmp);
+      arr_append(words, &cur);
+
+      start = end + 1;
+      cur = arr_init(sizeof(Token));
+    }
+  }
+
+  if (start != len) {
+    arr_append(words, &cur);
+  } else {
+    arr_free(cur);
+  }
+
+  // STEP 3: recursive merging
+
   return voc;
 }
-*/
