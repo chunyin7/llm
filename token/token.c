@@ -238,6 +238,10 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
 
         long count = map_get(pair_counts, merged);
         map_update(pair_counts, merged, count + 1);
+
+        if (count != -1) {
+          arr_free(merged.ids);
+        }
       }
     }
 
@@ -255,6 +259,26 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
     voc_add(voc, max.key);
 
     // perform the merge in place on the words
+    for (size_t j = 0; j < words->len; j++) {
+      Array *word = ((Array **)words->data)[j];
+      Array *new = arr_init(sizeof(Token));
+      for (size_t k = 0; k < word->len; k++) {
+        Token a = ((Token *)word->data)[k];
+        Token b = ((Token *)word->data)[k + 1];
+        Token merged = { .type = RAW, .ids = arr_join(a.ids, b.ids) };
+
+        if (arr_cmp(merged.ids, max.key.ids) && max.key.type == merged.type) {
+          arr_append(new, &merged);
+          k++; // skip the next iteration
+        } else {
+          arr_append(new, &a);
+        }
+      }
+
+      // replace with rebuilt word
+      ((Array **)words->data)[j] = new;
+      arr_free(word);
+    }
   }
 
   return voc;
