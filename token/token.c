@@ -47,19 +47,18 @@ Array *tokenize(uint8_t *in, size_t len, Vocabulary *voc) {
   Array *words = arr_init(sizeof(Array *));
   Array *cur = arr_init(sizeof(Token));
 
-  size_t start = 0;
   uint16_t eow_id = 257;
 
-  for (size_t end = 0; end < len; end++) {
-    uint16_t id = (uint8_t)in[end];
-    if (isalnum(in[end])) {
+  for (size_t i = 0; i < len; i++) {
+    uint16_t id = (uint8_t)in[i];
+    if (isalnum(in[i])) {
       Token b = { .type = RAW, .ids = arr_init(sizeof(uint16_t)) };
       arr_append(b.ids, &id);
       arr_append(cur, &b);
     } else {
       // punctuation or whitespace
       // first add the entire word preceding the punctuation
-      if (end - start > 0) {
+      if (cur->len > 0) {
         Token eow = { .type = EOW, .ids = arr_init(sizeof(uint16_t)) };
         arr_append(eow.ids, &eow_id);
         arr_append(cur, &eow);
@@ -76,12 +75,11 @@ Array *tokenize(uint8_t *in, size_t len, Vocabulary *voc) {
       arr_append(cur, &eow);
       arr_append(words, &cur);
 
-      start = end + 1;
       cur = arr_init(sizeof(Token));
     }
   }
 
-  if (start != len) {
+  if (cur->len > 0) {
     arr_append(words, &cur);
   } else {
     arr_free(cur);
@@ -237,18 +235,16 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
   Array *words = arr_init(sizeof(Array *));
   Array *cur = arr_init(sizeof(Token));
 
-  size_t start = 0;
-
-  for (size_t end = 0; end < len; end++) {
-    uint16_t id = (uint8_t)in[end];
-    if (isalnum(in[end])) {
+  for (size_t i = 0; i < len; i++) {
+    uint16_t id = (uint8_t)in[i];
+    if (isalnum(in[i])) {
       Token b = { .type = RAW, .ids = arr_init(sizeof(uint16_t)) };
       arr_append(b.ids, &id);
       arr_append(cur, &b);
     } else {
       // punctuation or whitespace
       // first add the entire word preceding the punctuation
-      if (end - start > 0) {
+      if (cur->len > 0) {
         Token eow = { .type = EOW, .ids = arr_init(sizeof(uint16_t)) };
         arr_append(eow.ids, &eow_id);
         arr_append(cur, &eow);
@@ -265,12 +261,11 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
       arr_append(cur, &eow);
       arr_append(words, &cur);
 
-      start = end + 1;
       cur = arr_init(sizeof(Token));
     }
   }
 
-  if (start != len) {
+  if (cur->len > 0) {
     arr_append(words, &cur);
   } else {
     arr_free(cur);
