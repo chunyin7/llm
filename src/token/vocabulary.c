@@ -179,3 +179,35 @@ void voc_save(Vocabulary *voc) {
 
   fclose(out);
 }
+
+Vocabulary *voc_load(const char *path) {
+  FILE *in = fopen(path, "rb");
+  if (!in) return NULL;
+
+  // read header
+  uint32_t len;
+  fread(&len, sizeof(uint32_t), 1, in);
+
+  // read each token
+  Vocabulary *voc = voc_init();
+  for (uint32_t i = 0; i < len; i++) {
+    Token tok;
+    uint8_t type;
+    uint16_t size;
+    fread(&type, sizeof(uint8_t), 1, in);
+    fread(&size, sizeof(uint16_t), 1, in);
+
+    tok.type = type;
+    tok.ids = arr_init(sizeof(uint16_t));
+    for (size_t j = 0; j < size; j++) {
+      uint16_t id;
+      fread(&id, sizeof(uint16_t), 1, in);
+      arr_append(tok.ids, &id);
+    }
+
+    voc_add(voc, tok);
+  }
+
+  fclose(in);
+  return voc;
+}

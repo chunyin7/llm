@@ -61,4 +61,7 @@ void voc_add(Vocabulary *voc, Token tok);
 // export the vocabulary to a binary file
 void voc_save(Vocabulary *voc);
 
+// load the vocabulary from a binary file
+Vocabulary *voc_load(const char *path);
+
 #endif
