@@ -1,6 +1,6 @@
 SRC:=$(wildcard src/**/*.c)
 
-token_test:
-	gcc ${SRC} test.c -o tok -fsanitize=address -Iinclude
-	./tok
-	rm tok
+train_vocab:
+	gcc ${SRC} run/train_vocab.c -o train_vocab -Iinclude -fsanitize=address
+	./train_vocab
+	rm train_vocab

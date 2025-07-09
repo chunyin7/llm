@@ -51,12 +51,14 @@ typedef struct {
   Array *i2t; // id to token via index
 } Vocabulary;
 
-// free the vocabulary
-void voc_free(Vocabulary *voc);
-
 Vocabulary *voc_init();
+
+void voc_free(Vocabulary *voc);
 
 // add a token to the vocabulary
 void voc_add(Vocabulary *voc, Token tok);
+
+// export the vocabulary to a binary file
+void voc_save(Vocabulary *voc);
 
 #endif

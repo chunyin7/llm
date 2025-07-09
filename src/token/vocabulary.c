@@ -1,4 +1,5 @@
 #include <token/vocabulary.h>
+#include <stdio.h>
 
 Vocabulary *voc_init() {
   Vocabulary *voc = malloc(sizeof(Vocabulary));
@@ -156,4 +157,25 @@ long map_get(Map *map, Token key) {
   }
 
   return -1;
+}
+
+void voc_save(Vocabulary *voc) {
+  FILE *out = fopen("bin/vocabulary", "wb+");
+
+  // header
+  uint32_t len = (uint32_t)voc->i2t->len;
+  fwrite(&len, sizeof(uint32_t), 1, out); // write the number of tokens
+  
+  // write each token
+  for (uint32_t i = 0; i < len; i++) {
+    Token tok = ((Token *)voc->i2t->data)[i];
+    uint8_t type = tok.type; // 0, 1, 2
+    uint16_t size = tok.ids->len;
+    
+    fwrite(&type, sizeof(uint8_t), 1, out);
+    fwrite(&size, sizeof(uint16_t), 1, out);
+    fwrite(tok.ids->data, sizeof(uint16_t), size, out);
+  }
+
+  fclose(out);
 }

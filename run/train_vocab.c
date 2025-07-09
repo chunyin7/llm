@@ -27,19 +27,8 @@ char *read_file(const char *path) {
 
 int main(void) {
   char *str = read_file("theverdict.txt");
-  Vocabulary *voc = bpe(512, (uint8_t *)str, strlen(str));
-
-  char *str2 = "Hello, do you like tea?";
-  Array *ids = encode((uint8_t *)str2, strlen(str2), voc);
-  Array *bytes = decode(ids, voc);
-
-  for (size_t i = 0; i < bytes->len; i++) {
-    printf("%c", ((uint8_t *)bytes->data)[i]);
-  }
-  printf("\n");
-
-  arr_free(ids);
-  arr_free(bytes);
+  Vocabulary *voc = bpe(1024, (uint8_t *)str, strlen(str));
+  voc_save(voc);
   free(str);
   voc_free(voc);
   return 0;
