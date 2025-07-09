@@ -27,12 +27,9 @@ char *read_file(const char *path) {
 int main(void) {
   char *str = read_file("./token/theverdict.txt");
   Vocabulary *voc = bpe(512, (uint8_t *)str, strlen(str));
-  Array *tl = arr_init(sizeof(Token));
-  tokenize(tl, str, strlen(str), voc);
 
   char *str2 = "Hello, do you like tea?";
-  Array *tokens = arr_init(sizeof(Token));
-  tokenize(tokens, str2, strlen(str2), voc);
+  Array *tokens = tokenize((uint8_t *)str2, strlen(str2), voc);
 
   for (size_t i = 0; i < tokens->len; i++) {
     Token tok = ((Token *)tokens->data)[i];
@@ -40,6 +37,8 @@ int main(void) {
       printf("'");
       if (((uint16_t *)tok.ids->data)[j] < 256) {
         printf("%c", ((uint16_t *)tok.ids->data)[j]);
+      } else if (((uint16_t *)tok.ids->data)[j] == 257) {
+        printf("<|eow|>");
       }
       printf("' ");
     }
@@ -48,7 +47,6 @@ int main(void) {
 
   arr_free(tokens);
   free(str);
-  arr_free(tl);
   voc_free(voc);
   return 0;
 }
