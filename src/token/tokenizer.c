@@ -1,44 +1,9 @@
-// word tokenizer
-#include <stdint.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <token/tokenizer.h>
+#include <token/vocabulary.h>
+#include <arr/array.h>
+
 #include <ctype.h>
-
-#include "token.h"
-#include "tokenmap/tokenmap.h"
-#include "../arr/array.h"
-
-Vocabulary *voc_init() {
-  Vocabulary *voc = malloc(sizeof(Vocabulary));
-  voc->t2i = map_init();
-  voc->i2t = arr_init(sizeof(Token));
-
-  return voc;
-}
-
-Token *tok_dup(Token *tok) {
-  Token *cpy = malloc(sizeof(Token));
-  cpy->type = tok->type;
-  
-  if (tok->ids == NULL) {
-    cpy->ids = NULL;
-  } else {
-    cpy->ids = arr_init(sizeof(uint16_t));
-    for (size_t i = 0; i < tok->ids->len; i++) {
-      arr_append(cpy->ids, &((uint16_t *)tok->ids->data)[i]);
-    }
-  }
-
-  return cpy;
-}
-
-void voc_add(Vocabulary *voc, Token tok) {
-  int r = map_add(voc->t2i, tok, voc->t2i->len);
-  if (r == voc->i2t->len) {
-    arr_append(voc->i2t, &tok);
-  }
-}
+#include <stdio.h>
 
 Array *tokenize(uint8_t *in, size_t len, Vocabulary *voc) {
   Array *tokens = arr_init(sizeof(Token));
@@ -142,8 +107,8 @@ Array *tokenize(uint8_t *in, size_t len, Vocabulary *voc) {
   return tokens;
 }
 
-Array *encode(char *str, Vocabulary *voc) {
-  Array *tl = tokenize((uint8_t *)str, strlen(str), voc);
+Array *encode(uint8_t *in, size_t len, Vocabulary *voc) {
+  Array *tl = tokenize((uint8_t *)in, len, voc);
 
   // convert token list to ids
   Array *ids = arr_init(sizeof(long));
@@ -164,45 +129,19 @@ Array *encode(char *str, Vocabulary *voc) {
 }
 
 Array *decode(Array *ids, Vocabulary *voc) {
-  Array *s = arr_init(sizeof(uint8_t));
+  Array *bytes = arr_init(sizeof(uint8_t));
 
   for (size_t i = 0; i < ids->len; i++) {
     Token tok = ((Token *)voc->i2t->data)[((long *)ids->data)[i]];
     if (tok.ids != NULL) {
       for (size_t j = 0; j < tok.ids->len; j++) {
-        arr_append(s, &((uint8_t *)tok.ids->data)[j]);
-      }
-    } else {
-      char *tmp;
-      switch (tok.type) {
-        case UNK:
-          tmp = "<|unk|>";
-          break;
-        case EOS:
-          tmp = "<|eos|>";
-          break;
-        default:
-          tmp = "";
-          break;
-      };
-
-      for (size_t i = 0; i < strlen(tmp); i++) {
-        arr_append(s, tmp + i);
+        arr_append(bytes, &((uint8_t *)tok.ids->data)[j]);
       }
     }
+    
   }
 
-  char null = '\0';
-  arr_append(s, &null);
-  return s;
-}
-
-void voc_free(Vocabulary *voc) {
-  // The hashmap owns the tokens and will free them
-  map_free(voc->t2i);
-  // i2t array just has references, so only free the array itself
-  arr_free(voc->i2t);
-  free(voc);
+  return bytes;
 }
 
 Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {

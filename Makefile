@@ -1,9 +1,6 @@
-TOKEN:=token/token.c
-MAP:=token/tokenmap/tokenmap.c
-ARR:=arr/array.c
-TEST:=test.c
+SRC:=$(wildcard src/**/*.c)
 
 token_test:
-	gcc ${TOKEN} ${ARR} ${MAP} ${TEST} -o tok -fsanitize=address
+	gcc ${SRC} test.c -o tok -fsanitize=address -Iinclude
 	./tok
 	rm tok

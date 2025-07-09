@@ -1,8 +1,27 @@
-#include "tokenmap.h"
-#include <stdlib.h>
-#include <string.h>
-#include <stdint.h>
-#include <stdio.h>
+#include <token/vocabulary.h>
+
+Vocabulary *voc_init() {
+  Vocabulary *voc = malloc(sizeof(Vocabulary));
+  voc->t2i = map_init();
+  voc->i2t = arr_init(sizeof(Token));
+
+  return voc;
+}
+
+void voc_add(Vocabulary *voc, Token tok) {
+  int r = map_add(voc->t2i, tok, voc->t2i->len);
+  if (r == voc->i2t->len) {
+    arr_append(voc->i2t, &tok);
+  }
+}
+
+void voc_free(Vocabulary *voc) {
+  // The hashmap owns the tokens and will free them
+  map_free(voc->t2i);
+  // i2t array just has references, so only free the array itself
+  arr_free(voc->i2t);
+  free(voc);
+}
 
 // FNV-1a 64-bit hash function
 static uint64_t fnv_1a(const Array *arr) {

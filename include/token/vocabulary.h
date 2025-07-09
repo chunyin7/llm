@@ -1,21 +1,18 @@
-// a basic linear probing / open addressing hashmap to map token keys to int values
-
-#ifndef MAP
-#define MAP
+#ifndef VOCAB
+#define VOCAB
 
 #define INIT_CAP 1024
 #define LOAD_FACTOR 0.7
 
 #include <stdint.h>
 #include <stdlib.h>
-#include "../../arr/array.h"
+#include <arr/array.h>
 
 // types of tokens
 typedef enum {
   RAW, // bytes
   EOW, // SPECIAL: end of word
   EOS, // SPECIAL: end of sequence
-  UNK,
 } TokenType;
 
 typedef struct {
@@ -30,7 +27,7 @@ typedef struct {
   int occupied; // boolean
 } Entry;
 
-// Hashmap struct
+// Hashmap struct, maps tokens to some int value
 typedef struct {
     Entry *entries;
     size_t cap, len;
@@ -48,5 +45,18 @@ void map_update(Map *map, Token key, long val);
 
 // retrieve the value for a key, return -1 if not found -> -1 should never be a value in this case
 long map_get(Map *map, Token key);
+
+typedef struct {
+  Map *t2i; // token to id
+  Array *i2t; // id to token via index
+} Vocabulary;
+
+// free the vocabulary
+void voc_free(Vocabulary *voc);
+
+Vocabulary *voc_init();
+
+// add a token to the vocabulary
+void voc_add(Vocabulary *voc, Token tok);
 
 #endif

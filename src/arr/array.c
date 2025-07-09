@@ -1,4 +1,4 @@
-#include "array.h"
+#include <arr/array.h>
 #include <string.h>
 
 Array *arr_init(size_t elem_size) {

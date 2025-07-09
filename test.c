@@ -1,5 +1,6 @@
-#include "token/token.h"
-#include "arr/array.h"
+#include <token/tokenizer.h>
+#include <token/vocabulary.h>
+#include <arr/array.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,27 +26,20 @@ char *read_file(const char *path) {
 }
 
 int main(void) {
-  char *str = read_file("./token/theverdict.txt");
+  char *str = read_file("theverdict.txt");
   Vocabulary *voc = bpe(512, (uint8_t *)str, strlen(str));
 
   char *str2 = "Hello, do you like tea?";
-  Array *tokens = tokenize((uint8_t *)str2, strlen(str2), voc);
+  Array *ids = encode((uint8_t *)str2, strlen(str2), voc);
+  Array *bytes = decode(ids, voc);
 
-  for (size_t i = 0; i < tokens->len; i++) {
-    Token tok = ((Token *)tokens->data)[i];
-    for (size_t j = 0; j < tok.ids->len; j++) {
-      printf("'");
-      if (((uint16_t *)tok.ids->data)[j] < 256) {
-        printf("%c", ((uint16_t *)tok.ids->data)[j]);
-      } else if (((uint16_t *)tok.ids->data)[j] == 257) {
-        printf("<|eow|>");
-      }
-      printf("' ");
-    }
+  for (size_t i = 0; i < bytes->len; i++) {
+    printf("%c", ((uint8_t *)bytes->data)[i]);
   }
   printf("\n");
 
-  arr_free(tokens);
+  arr_free(ids);
+  arr_free(bytes);
   free(str);
   voc_free(voc);
   return 0;
