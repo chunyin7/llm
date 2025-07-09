@@ -12,7 +12,7 @@ static uint64_t fnv_1a(const Array *arr) {
         return h;
     }
     
-    uint8_t *ids = (uint8_t *)arr->data;
+    uint16_t *ids = (uint16_t *)arr->data;
 
     for (int i = 0; i < arr->len; i++) {
         h ^= ids[i];
@@ -111,6 +111,7 @@ void map_update(Map *map, Token key, long val) {
   while (map->entries[h].occupied) {
     if (arr_cmp(map->entries[h].key.ids, key.ids) && map->entries[h].key.type == key.type) {
       map->entries[h].val = val;
+      return;
     }
 
     h++;

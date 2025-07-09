@@ -26,22 +26,29 @@ char *read_file(const char *path) {
 
 int main(void) {
   char *str = read_file("./token/theverdict.txt");
+  Vocabulary *voc = bpe(512, (uint8_t *)str, strlen(str));
   Array *tl = arr_init(sizeof(Token));
-  tokenize(tl, str, strlen(str));
-
-  Vocabulary *voc = voc_init();
-  build_voc(tl, voc);
+  tokenize(tl, str, strlen(str), voc);
 
   char *str2 = "Hello, do you like tea?";
-  Array *ids = encode(str2, voc);
-  Array *s = decode(ids, voc);
-  printf("%s\n", (char *) s->data);
+  Array *tokens = arr_init(sizeof(Token));
+  tokenize(tokens, str2, strlen(str2), voc);
 
+  for (size_t i = 0; i < tokens->len; i++) {
+    Token tok = ((Token *)tokens->data)[i];
+    for (size_t j = 0; j < tok.ids->len; j++) {
+      printf("'");
+      if (((uint16_t *)tok.ids->data)[j] < 256) {
+        printf("%c", ((uint16_t *)tok.ids->data)[j]);
+      }
+      printf("' ");
+    }
+  }
+  printf("\n");
+
+  arr_free(tokens);
   free(str);
-  arr_free(s);
-  
   arr_free(tl);
   voc_free(voc);
-  arr_free(ids);
   return 0;
 }

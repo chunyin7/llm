@@ -12,9 +12,9 @@ typedef struct {
 
 Vocabulary *voc_init();
 
-void build_voc(Array *tl, Vocabulary *voc);
+Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len);
 
-void tokenize(Array *tokens, char *str, size_t len);
+void tokenize(Array *tokens, char *str, size_t len, Vocabulary *voc);
 
 Array *encode(char *str, Vocabulary *voc);
 
