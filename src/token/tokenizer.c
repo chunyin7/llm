@@ -10,44 +10,48 @@ Array *tokenize(uint8_t *in, size_t len, Vocabulary *voc) {
 
   // segment into 2d byte array
   Array *words = arr_init(sizeof(Array *));
-  Array *cur = arr_init(sizeof(Token));
+  Array *cur = NULL;
 
   uint16_t eow_id = 257;
 
   for (size_t i = 0; i < len; i++) {
     uint16_t id = (uint8_t)in[i];
     if (isalnum(in[i])) {
+      if (cur == NULL) {
+        cur = arr_init(sizeof(Token));
+      }
+
       Token b = { .type = RAW, .ids = arr_init(sizeof(uint16_t)) };
       arr_append(b.ids, &id);
       arr_append(cur, &b);
     } else {
       // punctuation or whitespace
       // first add the entire word preceding the punctuation
-      if (cur->len > 0) {
+      if (cur != NULL) {
         Token eow = { .type = EOW, .ids = arr_init(sizeof(uint16_t)) };
         arr_append(eow.ids, &eow_id);
         arr_append(cur, &eow);
         arr_append(words, &cur);
+        cur = NULL;
       }
 
       // then add the punctuation
-      cur = arr_init(sizeof(Token));
+      Array *punct = arr_init(sizeof(Token));
       Token eow = { .type = EOW, .ids = arr_init(sizeof(uint16_t)) };
       arr_append(eow.ids, &eow_id);
       Token tmp = { .type = RAW, .ids = arr_init(sizeof(uint16_t)) };
       arr_append(tmp.ids, &id);
-      arr_append(cur, &tmp);
-      arr_append(cur, &eow);
-      arr_append(words, &cur);
-
-      cur = arr_init(sizeof(Token));
+      arr_append(punct, &tmp);
+      arr_append(punct, &eow);
+      arr_append(words, &punct);
     }
   }
 
-  if (cur->len > 0) {
+  if (cur != NULL) {
+    Token eow = { .type = EOW, .ids = arr_init(sizeof(uint16_t)) };
+    arr_append(eow.ids, &eow_id);
+    arr_append(cur, &eow);
     arr_append(words, &cur);
-  } else {
-    arr_free(cur);
   }
 
   // recursive merge within words
@@ -71,6 +75,8 @@ Array *tokenize(uint8_t *in, size_t len, Vocabulary *voc) {
         if (map_get(voc->t2i, merged) != -1) {
           // pair exists
           pair_found = 1;
+          arr_free(a.ids);
+          arr_free(b.ids);
           arr_append(new, &merged);
           // add the rest of the word to new
           for (size_t j = k + 1; j < word->len; j++) {
@@ -120,7 +126,7 @@ Array *encode(uint8_t *in, size_t len, Vocabulary *voc) {
   for (size_t i = 0; i < tl->len; i++) {
     Token *tok = &(((Token *)tl->data)[i]);
     if (tok->ids) {
-      free(tok->ids);
+      arr_free(tok->ids);
     }
   }
 
@@ -172,42 +178,43 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
 
   // STEP 2: divide the string into an 2d token arrays
   Array *words = arr_init(sizeof(Array *));
-  Array *cur = arr_init(sizeof(Token));
+  Array *cur = NULL;
 
   for (size_t i = 0; i < len; i++) {
     uint16_t id = (uint8_t)in[i];
     if (isalnum(in[i])) {
+      if (cur == NULL) {
+        cur = arr_init(sizeof(Token));
+      }
       Token b = { .type = RAW, .ids = arr_init(sizeof(uint16_t)) };
       arr_append(b.ids, &id);
       arr_append(cur, &b);
     } else {
-      // punctuation or whitespace
-      // first add the entire word preceding the punctuation
-      if (cur->len > 0) {
-        Token eow = { .type = EOW, .ids = arr_init(sizeof(uint16_t)) };
-        arr_append(eow.ids, &eow_id);
-        arr_append(cur, &eow);
+      if (cur != NULL) {
+        Token eow_local = { .type = EOW, .ids = arr_init(sizeof(uint16_t)) };
+        arr_append(eow_local.ids, &eow_id);
+        arr_append(cur, &eow_local);
         arr_append(words, &cur);
+        cur = NULL;
       }
 
       // then add the punctuation
-      cur = arr_init(sizeof(Token));
+      Array *punct = arr_init(sizeof(Token));
       Token eow = { .type = EOW, .ids = arr_init(sizeof(uint16_t)) };
       arr_append(eow.ids, &eow_id);
       Token tmp = { .type = RAW, .ids = arr_init(sizeof(uint16_t)) };
       arr_append(tmp.ids, &id);
-      arr_append(cur, &tmp);
-      arr_append(cur, &eow);
-      arr_append(words, &cur);
-
-      cur = arr_init(sizeof(Token));
+      arr_append(punct, &tmp);
+      arr_append(punct, &eow);
+      arr_append(words, &punct);
     }
   }
 
-  if (cur->len > 0) {
+  if (cur != NULL) {
+    Token eow_local = { .type = EOW, .ids = arr_init(sizeof(uint16_t)) };
+    arr_append(eow_local.ids, &eow_id);
+    arr_append(cur, &eow_local);
     arr_append(words, &cur);
-  } else {
-    arr_free(cur);
   }
 
   // STEP 3: recursive merging
@@ -225,7 +232,8 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
         Token merged = { .type = RAW, .ids = arr_join(a.ids, b.ids) };
 
         long count = map_get(pair_counts, merged);
-        map_update(pair_counts, merged, count + 1);
+        long new_count = (count == -1 ? 1 : count + 1);
+        map_update(pair_counts, merged, new_count);
 
         if (count != -1) {
           arr_free(merged.ids);
@@ -235,6 +243,7 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
 
     // get most frequest pair
     Entry max;
+    max.val = 0;
     for (size_t j = 0; j < pair_counts->cap; j++) {
       if (pair_counts->entries[j].occupied) {
         if (pair_counts->entries[j].val > max.val) {
@@ -243,8 +252,15 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
       }
     }
 
+    // if no pairs found, break early
+    if (max.val == 0) {
+      map_free(pair_counts);
+      break;
+    }
+
     // add the token to vocab
-    voc_add(voc, max.key);
+    Token new_token = { .type = max.key.type, .ids = arr_dup(max.key.ids, max.key.ids->len, max.key.ids->size) };
+    voc_add(voc, new_token);
 
     // perform the merge in place on the words
     for (size_t j = 0; j < words->len; j++) {
@@ -261,10 +277,13 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
         Token b = ((Token *)word->data)[k + 1];
         Token merged = { .type = RAW, .ids = arr_join(a.ids, b.ids) };
 
-        if (arr_cmp(merged.ids, max.key.ids) && max.key.type == merged.type) {
+        if (arr_cmp(merged.ids, new_token.ids) && new_token.type == merged.type) {
+          arr_free(a.ids);
+          arr_free(b.ids);
           arr_append(new, &merged);
           k++; // skip the next iteration
         } else {
+          arr_free(merged.ids);
           arr_append(new, &a);
         }
       }
@@ -273,7 +292,18 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
       ((Array **)words->data)[j] = new;
       arr_free(word);
     }
+
+    map_free(pair_counts);
   }
+
+  for (size_t i = 0; i < words->len; i++) {
+    Array *word = ((Array **)words->data)[i];
+    for (size_t j = 0; j < word->len; j++) {
+      arr_free(((Token *)word->data)[j].ids);
+    }
+    arr_free(word);
+  }
+  arr_free(words);
 
   return voc;
 }

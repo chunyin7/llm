@@ -59,7 +59,7 @@ Map *map_init() {
 void map_free(Map *map) {
     for (size_t i = 0; i < map->cap; i++) {
         if (map->entries[i].occupied) {
-            free(map->entries[i].key.ids);
+            arr_free(map->entries[i].key.ids);
         }
     }
 
