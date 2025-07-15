@@ -182,7 +182,10 @@ void voc_save(Vocabulary *voc) {
 
 Vocabulary *voc_load(const char *path) {
   FILE *in = fopen(path, "rb");
-  if (!in) return NULL;
+  if (!in) {
+    printf("Error: could not open file %s\n", path);
+    return NULL;
+  }
 
   // read header
   uint32_t len;
