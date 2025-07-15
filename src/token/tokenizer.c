@@ -150,6 +150,34 @@ Array *decode(Array *ids, Vocabulary *voc) {
   return bytes;
 }
 
+void save_token_sequence(Array *ids) {
+  FILE *out = fopen("bin/token_sequence", "wb+");
+  uint32_t len = ids->len;
+  fwrite(&len, sizeof(size_t), 1, out);
+  fwrite(ids->data, sizeof(long), ids->len, out);
+
+  fclose(out);
+}
+
+void load_token_sequence(const char *path) {
+  FILE *in = fopen(path, "rb");
+  if (!in) {
+    return;
+  }
+
+  uint32_t len;
+  Array *ids = arr_init(sizeof(long));
+
+  fread(&len, sizeof(size_t), 1, in);
+  for (size_t i = 0; i < len; i++) {
+    long id;
+    fread(&id, sizeof(long), 1, in);
+    arr_append(ids, &id);
+  }
+
+  fclose(in);
+}
+
 Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
   if (voc_size < 256) {
     printf("Use larger vocabulary size\n");
@@ -178,7 +206,7 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
 
   // STEP 2: divide the string into an 2d token arrays
   Array *words = arr_init(sizeof(Array *));
-  Array *cur = NULL;
+  Array *cur = NULL; // avoid unnecessary mallocs
 
   for (size_t i = 0; i < len; i++) {
     uint16_t id = (uint8_t)in[i];
