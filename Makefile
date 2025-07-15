@@ -2,7 +2,7 @@ SRC:=$(wildcard src/**/*.c)
 
 train_vocab:
 	gcc ${SRC} run/train_vocab.c -o train_vocab -Iinclude
-	./train_vocab
+	./train_vocab ${file} ${vocab_size}
 	rm train_vocab
 
 tokenize:

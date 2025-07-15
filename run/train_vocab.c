@@ -25,9 +25,16 @@ char *read_file(const char *path) {
   return buf;
 }
 
-int main(void) {
-  char *str = read_file("theverdict.txt");
-  Vocabulary *voc = bpe(1024, (uint8_t *)str, strlen(str));
+int main(int argc, char **argv) {
+  if (argc != 3) {
+    printf("Usage: %s <text_file> <vocab_size>\n", argv[0]);
+  }
+
+  char *path = argv[1];
+  size_t voc_size = atoi(argv[2]);
+
+  char *str = read_file(path);
+  Vocabulary *voc = bpe(voc_size, (uint8_t *)str, strlen(str));
   voc_save(voc);
   free(str);
   voc_free(voc);
