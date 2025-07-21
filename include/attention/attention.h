@@ -7,6 +7,10 @@
 Array *compute_self_attention_scores(Array *vec);
 
 // normalize to produce weights
-void normalize_scores(Array *scores);
+void softmax(Array *scores);
+
+// compute context vectors
+// weighted sums of embeddings
+Array *compute_context_mat(Array *weights, Array *embeddings, size_t dim);
 
 #endif

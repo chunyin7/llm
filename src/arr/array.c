@@ -1,6 +1,7 @@
 #include <arr/array.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdio.h>
 
 Array *arr_init(size_t elem_size) {
   Array *arr = malloc(sizeof(Array));
@@ -83,36 +84,36 @@ Array *arr_join(Array *a, Array *b) {
   return arr;
 }
 
-Array *dot_float(Array *a, Array *b) {
+float dot_float(Array *a, Array *b) {
   // assume float
   if (a->size != b->size || a->len != b->len || a->size != sizeof(float)) {
-    return NULL;
+    printf("dot_float: invalid array sizes\n");
+    exit(1);
   }
 
-  Array *arr = arr_init(sizeof(float));
+  float sum = 0;
 
   for (size_t i = 0; i < a->len; i++) {
-    float val = ((float *)a->data)[i] * ((float *)b->data)[i];
-    arr_append(arr, &val);
+    sum += ((float *)a->data)[i] * ((float *)b->data)[i];
   }
 
-  return arr;
+  return sum;
 }
 
-Array *dot_double(Array *a, Array *b) {
+double dot_double(Array *a, Array *b) {
   // assume double
   if (a->size != b->size || a->len != b->len || a->size != sizeof(double)) {
-    return NULL;
+    printf("dot_double: invalid array sizes\n");
+    exit(1);
   }
 
-  Array *arr = arr_init(sizeof(double));
+  double sum = 0;
 
   for (size_t i = 0; i < a->len; i++) {
-    double val = ((double *)a->data)[i] * ((double *)b->data)[i];
-    arr_append(arr, &val);
+    sum += ((double *)a->data)[i] * ((double *)b->data)[i];
   }
 
-  return arr;
+  return sum;
 }
 
 void arr_apply(Array *a, void (*f)(void *)) {
