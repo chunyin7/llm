@@ -1,5 +1,6 @@
 #include <arr/array.h>
 #include <string.h>
+#include <stdint.h>
 
 Array *arr_init(size_t elem_size) {
   Array *arr = malloc(sizeof(Array));
@@ -77,6 +78,38 @@ Array *arr_join(Array *a, Array *b) {
 
   for (size_t i = 0; i < b->len; i++) {
     arr_append(arr, (char *)b->data + b->size * i);
+  }
+
+  return arr;
+}
+
+Array *dot_float(Array *a, Array *b) {
+  // assume float
+  if (a->size != b->size || a->len != b->len || a->size != sizeof(float)) {
+    return NULL;
+  }
+
+  Array *arr = arr_init(sizeof(float));
+
+  for (size_t i = 0; i < a->len; i++) {
+    float val = ((float *)a->data)[i] * ((float *)b->data)[i];
+    arr_append(arr, &val);
+  }
+
+  return arr;
+}
+
+Array *dot_double(Array *a, Array *b) {
+  // assume double
+  if (a->size != b->size || a->len != b->len || a->size != sizeof(double)) {
+    return NULL;
+  }
+
+  Array *arr = arr_init(sizeof(double));
+
+  for (size_t i = 0; i < a->len; i++) {
+    double val = ((double *)a->data)[i] * ((double *)b->data)[i];
+    arr_append(arr, &val);
   }
 
   return arr;
