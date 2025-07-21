@@ -114,3 +114,9 @@ Array *dot_double(Array *a, Array *b) {
 
   return arr;
 }
+
+void arr_apply(Array *a, void (*f)(void *)) {
+  for (size_t i = 0; i < a->len; i++) {
+    f((char *)a->data + i * a->size);
+  }
+}

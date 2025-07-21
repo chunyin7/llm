@@ -8,9 +8,9 @@ Array *init_embedding(size_t dim, size_t voc_size) {
   srand(time(NULL));
 
   for (size_t i = 0; i < voc_size; i++) {
-    Array *tok = arr_init(sizeof(float));
+    Array *tok = arr_init(sizeof(double));
     for (size_t j = 0; j < dim; j++) {
-      float val = (float)rand() / (float)RAND_MAX;
+      double val = (double)rand() / (double)RAND_MAX;
       arr_append(tok, &val);
     }
 
@@ -29,7 +29,7 @@ Array *embed(Array *ids, Array *emb_mat, size_t dim) {
     Array *emb_mat_row = &((Array *)emb_mat->data)[id];
 
     for (size_t j = 0; j < dim; j++) {
-      float val = ((float *)emb_mat_row->data)[j];
+      double val = ((double *)emb_mat_row->data)[j];
       arr_append(tok_emb, &val);
     }
 
