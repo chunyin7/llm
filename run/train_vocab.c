@@ -1,6 +1,6 @@
 #include <token/tokenizer.h>
 #include <token/vocabulary.h>
-#include <arr/array.h>
+#include <util/array.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
