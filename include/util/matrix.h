@@ -23,4 +23,6 @@ Matrix *matrix_transpose(Matrix *mat);
 
 Matrix *matrix_multiply(Matrix *a, Matrix *b);
 
+Matrix *matrix_add(Matrix *a, Matrix *b);
+
 #endif

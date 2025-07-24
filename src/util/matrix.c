@@ -63,3 +63,19 @@ Matrix *matrix_multiply(Matrix *a, Matrix *b) {
 
   return new;
 }
+
+Matrix *matrix_add(Matrix *a, Matrix *b) {
+  if (a->rows != b->rows || a->cols != b->cols) {
+    printf("matrix_add: invalid dimensions\n");
+    return NULL;
+  }
+
+  Matrix *new = matrix_init(a->rows, a->cols);
+  for (size_t i = 0; i < a->rows; i++) {
+    for (size_t j = 0; j < a->cols; j++) {
+      matrix_set(new, i, j, matrix_get(a, i, j) + matrix_get(b, i, j));
+    }
+  }
+
+  return new;
+}
