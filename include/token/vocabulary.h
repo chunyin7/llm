@@ -6,7 +6,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <arr/array.h>
+#include <util/array.h>
 
 // types of tokens
 typedef enum {

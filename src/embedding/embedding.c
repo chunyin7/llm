@@ -1,5 +1,5 @@
 #include <embedding/embedding.h>
-#include <arr/array.h>
+#include <util/array.h>
 #include <stdlib.h>
 #include <time.h>
 

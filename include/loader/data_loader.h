@@ -1,7 +1,7 @@
 #ifndef DATA_LOADER
 #define DATA_LOADER
 
-#include <arr/array.h>
+#include <util/array.h>
 
 typedef struct {
   Array *ids;

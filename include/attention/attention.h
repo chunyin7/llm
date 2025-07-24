@@ -1,7 +1,7 @@
 #ifndef ATTENTION
 #define ATTENTION
 
-#include <arr/array.h>
+#include <util/array.h>
 
 // naive self-attention scores
 Array *compute_self_attention_scores(Array *vec);

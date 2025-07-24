@@ -1,5 +1,5 @@
 #include <attention/attention.h>
-#include <arr/array.h>
+#include <util/array.h>
 #include <math.h>
 
 Array *compute_self_attention_scores(Array *mat) {
@@ -45,7 +45,7 @@ Array *compute_context_mat(Array *weights, Array *embeddings, size_t dim) {
       double weight = ((double *)weights->data)[j];
       Array *emb = ((Array **)embeddings->data)[j];
 
-      for (size_t k = 0; k < weights->len; k++) {
+      for (size_t k = 0; k < dim; k++) {
         double val = ((double *)emb->data)[k] * weight;
         ((double *)context_vec->data)[k] += val;
       }

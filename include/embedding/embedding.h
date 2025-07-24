@@ -2,7 +2,7 @@
 #define EMBEDDING
 
 #include <stdlib.h>
-#include <arr/array.h>
+#include <util/array.h>
 
 // emit randomized embedding matrix
 // can also be used for pos embedding where voc_size = max_seq_len
