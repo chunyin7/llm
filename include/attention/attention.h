@@ -2,15 +2,9 @@
 #define ATTENTION
 
 #include <util/array.h>
+#include <util/matrix.h>
 
-// naive self-attention scores
-Array *compute_self_attention_scores(Array *vec);
-
-// normalize to produce weights
-void softmax(Array *scores);
-
-// compute context vectors
-// weighted sums of embeddings
-Array *compute_context_mat(Array *weights, Array *embeddings, size_t dim);
+// compute self-attention
+Matrix *self_attention(Matrix *token_embedding_matrix, Matrix *Wq, Matrix *Wk, Matrix *Wv);
 
 #endif
