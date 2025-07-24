@@ -19,4 +19,8 @@ double matrix_get(Matrix *mat, size_t row, size_t col);
 
 void matrix_randomize(Matrix *mat);
 
+Matrix *matrix_transpose(Matrix *mat);
+
+Matrix *matrix_multiply(Matrix *a, Matrix *b);
+
 #endif

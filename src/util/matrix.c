@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <util/matrix.h>
+#include <stdio.h>
 
 Matrix *matrix_init(size_t rows, size_t cols) {
   Matrix *mat = malloc(sizeof(Matrix));
@@ -27,4 +28,38 @@ void matrix_randomize(Matrix *mat) {
   for (size_t i = 0; i < mat->rows * mat->cols; i++) {
     mat->data[i] = (double)rand() / (double)RAND_MAX;
   }
+}
+
+Matrix *matrix_transpose(Matrix *mat) {
+  Matrix *new = matrix_init(mat->cols, mat->rows);
+
+  for (size_t i = 0; i < mat->rows; i++) {
+    for (size_t j = 0; j < mat->cols; j++) {
+      matrix_set(new, j, i, matrix_get(mat, i, j));
+    }
+  }
+
+  return new;
+}
+
+Matrix *matrix_multiply(Matrix *a, Matrix *b) {
+  if (a->cols != b->rows) {
+    printf("matrix_multiply: invalid dimensions\n");
+    return NULL;
+  }
+
+  Matrix *new = matrix_init(a->rows, b->cols);
+
+  for (size_t i = 0; i < a->rows; i++) {
+    for (size_t j = 0; j < b->cols; j++) {
+      double sum = 0;
+      for (size_t k = 0; k < a->cols; k++) {
+        sum += matrix_get(a, i, k) * matrix_get(b, k, j);
+      }
+
+      matrix_set(new, i, j, sum);
+    }
+  }
+
+  return new;
 }

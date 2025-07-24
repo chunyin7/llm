@@ -1,5 +1,6 @@
 #include <attention/attention.h>
 #include <util/array.h>
+#include <util/matrix.h>
 #include <math.h>
 
 Array *compute_self_attention_scores(Array *mat) {
