@@ -2,6 +2,7 @@
 #define TOKENIZER
 
 #include "vocabulary.h"
+#include <util/matrix.h>
 
 Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len);
 
@@ -16,5 +17,8 @@ void save_token_sequence(Array *ids);
 
 // load token sequence (ids) from file
 void load_token_sequence(const char *path);
+
+// embed token id sequence into an embedding matrix
+Matrix *embed(Array *ids, Matrix *emb_mat);
 
 #endif

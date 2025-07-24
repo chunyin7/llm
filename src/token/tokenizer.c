@@ -1,6 +1,7 @@
 #include <token/tokenizer.h>
 #include <token/vocabulary.h>
 #include <util/array.h>
+#include <util/matrix.h>
 
 #include <ctype.h>
 #include <stdio.h>
@@ -334,4 +335,20 @@ Vocabulary *bpe(size_t voc_size, uint8_t *in, size_t len) {
   arr_free(words);
 
   return voc;
+}
+
+Matrix *embed(Array *ids, Matrix *emb_mat) {
+  size_t dim = emb_mat->cols; // embedding dimension
+
+  Matrix *mat = matrix_init(ids->len, dim);
+  for (size_t i = 0; i < ids->len; i++) {
+    long id = ((long *)ids->data)[i];
+
+    for (size_t j = 0; j < dim; j++) {
+      double val = matrix_get(emb_mat, id, j);
+      matrix_set(mat, i, j, val);
+    }
+  }
+
+  return mat;
 }

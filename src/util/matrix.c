@@ -22,3 +22,9 @@ void matrix_set(Matrix *mat, size_t row, size_t col, double val) {
 double matrix_get(Matrix *mat, size_t row, size_t col) {
   return mat->data[row * mat->cols + col];
 }
+
+void matrix_randomize(Matrix *mat) {
+  for (size_t i = 0; i < mat->rows * mat->cols; i++) {
+    mat->data[i] = (double)rand() / (double)RAND_MAX;
+  }
+}
