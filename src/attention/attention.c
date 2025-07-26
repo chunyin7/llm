@@ -77,6 +77,9 @@ void apply_dropout_mask(Matrix *scores, float dropout_rate) {
     for (size_t j = 0; j < scores->cols; j++) {
       if (rand() / (float)RAND_MAX < dropout_rate) {
         matrix_set(scores, i, j, 0);
+      } else {
+        // scale the scores by 1/(1-p)
+        matrix_set(scores, i, j, matrix_get(scores, i, j) / (1 - dropout_rate));
       }
     }
   }
