@@ -47,6 +47,9 @@ Matrix *forward_pass(Matrix *token_embedding_matrix, Matrix *Wq, Matrix *Wk, Mat
     }
   }
 
+  // apply dropout mask after computing attention weights
+  apply_dropout_mask(scores, 0.1);
+
   // weight with V for context matrix
   Matrix *context = matrix_multiply(scores, V);
 
@@ -64,6 +67,16 @@ void apply_causal_mask(Matrix *scores) {
     for (size_t j = 0; j < scores->cols; j++) {
       if (j > i) {
         matrix_set(scores, i, j, -INFINITY);
+      }
+    }
+  }
+}
+
+void apply_dropout_mask(Matrix *scores, float dropout_rate) {
+  for (size_t i = 0; i < scores->rows; i++) {
+    for (size_t j = 0; j < scores->cols; j++) {
+      if (rand() / (float)RAND_MAX < dropout_rate) {
+        matrix_set(scores, i, j, 0);
       }
     }
   }
