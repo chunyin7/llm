@@ -3,7 +3,14 @@
 #include <util/matrix.h>
 #include <math.h>
 
-Matrix *forward_pass(Matrix *token_embedding_matrix, Matrix *Wq, Matrix *Wk, Matrix *Wv) {
+Matrix *forward_pass(
+  Matrix *token_embedding_matrix,
+  Matrix *Wq,
+  Matrix *Wk,
+  Matrix *Wv,
+  float dropout_rate,
+  size_t n_heads
+) {
   // compute attention scores
   Matrix *Q = matrix_multiply(token_embedding_matrix, Wq);
   Matrix *K = matrix_multiply(token_embedding_matrix, Wk);
@@ -48,7 +55,7 @@ Matrix *forward_pass(Matrix *token_embedding_matrix, Matrix *Wq, Matrix *Wk, Mat
   }
 
   // apply dropout mask after computing attention weights
-  apply_dropout_mask(scores, 0.1);
+  apply_dropout_mask(scores, dropout_rate);
 
   // weight with V for context matrix
   Matrix *context = matrix_multiply(scores, V);
