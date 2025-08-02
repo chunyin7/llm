@@ -10,6 +10,7 @@ Matrix *forward_pass(
   Matrix *Wq,
   Matrix *Wk,
   Matrix *Wv,
+  Matrix *Wo,
   float dropout_rate,
   size_t n_heads
 );
