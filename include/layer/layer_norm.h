@@ -2,6 +2,7 @@
 #define LAYER_NORM
 
 #include <stdlib.h>
+#include <util/matrix.h>
 #include <util/array.h>
 
 typedef struct {
@@ -14,6 +15,6 @@ LayerNorm *layer_norm_init(double eps, size_t emb_dim);
 
 void layer_norm_free(LayerNorm *ln);
 
-void layer_norm_forward(LayerNorm *ln, Array *x);
+void layer_norm_forward(LayerNorm *ln, Matrix *in);
 
 #endif

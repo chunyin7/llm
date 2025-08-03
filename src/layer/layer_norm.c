@@ -1,5 +1,6 @@
 #include <layer/layer_norm.h>
 #include <util/array.h>
+#include <util/matrix.h>
 #include <math.h>
 
 LayerNorm *layer_norm_init(double eps, size_t emb_dim) {
@@ -25,30 +26,35 @@ void layer_norm_free(LayerNorm *ln) {
   free(ln);
 }
 
-void layer_norm_forward(LayerNorm *ln, Array *x) {
-  // calculate mean
-  double mean = 0;
+void layer_norm_forward(LayerNorm *ln, Matrix *in) {
+  // layer norm each row
+  for (size_t i = 0; i < in->rows; i++) {
+    // calculate mean
+    double mean = 0;
 
-  for (size_t i = 0; i < x->len; i++) {
-    mean += ((double *)x->data)[i];
-  }
+    for (size_t j = 0; j < in->cols; j++) {
+      mean += matrix_get(in, i, j);
+    }
 
-  mean /= x->len;
+    mean /= in->cols;
 
-  // compute variance
-  double var = 0;
+    // compute variance
+    double var = 0;
 
-  for (size_t i = 0; i < x->len; i++) {
-    var += pow(((double *)x->data)[i] - mean, 2);
-  }
+    for (size_t j = 0; j < in->cols; j++) {
+      var += pow(matrix_get(in, i, j) - mean, 2);
+    }
 
-  var /= x->len; // biased estimate of variance
+    var /= in->cols; // biased estimate of variance
 
-  // normalize
-  for (size_t i = 0; i < x->len; i++) {
-    ((double *)x->data)[i] -= mean;
-    ((double *)x->data)[i] /= sqrt(var + ln->eps);
-    ((double *)x->data)[i] *= ((double *)ln->scale->data)[i];
-    ((double *)x->data)[i] += ((double *)ln->shift->data)[i];
+    // normalize
+    for (size_t j = 0; j < in->cols; j++) {
+      double val = matrix_get(in, i, j);
+      val -= mean;
+      val /= sqrt(var + ln->eps);
+      val *= ((double *)ln->scale->data)[j];
+      val += ((double *)ln->shift->data)[j];
+      matrix_set(in, i, j, val);
+    }
   }
 }

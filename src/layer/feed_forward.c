@@ -1,4 +1,5 @@
 #include <layer/feed_forward.h>
+#include <stdlib.h>
 #include <math.h>
 
 void gelu(Matrix *mat) {
@@ -52,7 +53,7 @@ Matrix *feed_forward_forward(FeedForward *ff, Matrix *in) {
 
   for (size_t i = 0; i < out->rows; i++) {
     for (size_t j = 0; j < out->cols; j++) {
-      double val = matrix_get(out, i, j) + matrix_get(ff->b1, j, 0);
+      double val = matrix_get(out, i, j) + matrix_get(ff->b2, j, 0);
       matrix_set(out, i, j, val);
     }
   }
