@@ -42,7 +42,7 @@ void layer_norm_forward(LayerNorm *ln, Array *x) {
     var += pow(((double *)x->data)[i] - mean, 2);
   }
 
-  var /= x->len;
+  var /= x->len; // biased estimate of variance
 
   // normalize
   for (size_t i = 0; i < x->len; i++) {
