@@ -2,6 +2,7 @@
 #define MATRIX
 
 #include <stdlib.h>
+#include <util/array.h>
 
 typedef struct {
   size_t rows;
@@ -24,5 +25,11 @@ Matrix *matrix_transpose(Matrix *mat);
 Matrix *matrix_multiply(Matrix *a, Matrix *b);
 
 Matrix *matrix_add(Matrix *a, Matrix *b);
+
+// convert a (double) array to a row vector matrix
+Matrix *arr_to_matrix(Array *arr);
+
+// convert a matrix to a (double) array
+Array *matrix_to_arr(Matrix *mat);
 
 #endif

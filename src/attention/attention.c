@@ -4,7 +4,7 @@
 #include <util/tensor.h>
 #include <math.h>
 
-Matrix *forward_pass(
+Matrix *attention_forward(
   Matrix *token_embedding_matrix,
   Matrix *Wq,
   Matrix *Wk,

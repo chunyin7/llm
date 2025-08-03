@@ -5,7 +5,7 @@
 #include <util/matrix.h>
 
 // compute self-attention
-Matrix *forward_pass(
+Matrix *attention_forward(
   Matrix *token_embedding_matrix,
   Matrix *Wq,
   Matrix *Wk,

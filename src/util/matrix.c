@@ -79,3 +79,33 @@ Matrix *matrix_add(Matrix *a, Matrix *b) {
 
   return new;
 }
+
+Matrix *arr_to_matrix(Array *arr) {
+  if (arr->size != sizeof(double)) {
+    printf("arr_to_matrix: invalid array type\n");
+    return NULL;
+  }
+
+  // convert to a row vector
+  Matrix *mat = matrix_init(arr->len, 1);
+  for (size_t i = 0; i < arr->len; i++) {
+    matrix_set(mat, i, 0, ((double *)arr->data)[i]);
+  }
+
+  return mat;
+}
+
+Array *matrix_to_arr(Matrix *mat) {
+  if (mat->cols != 1) {
+    printf("matrix_to_arr: invalid dimensions\n");
+    return NULL;
+  }
+
+  Array *arr = arr_init(sizeof(double));
+  for (size_t i = 0; i < mat->rows; i++) {
+    double val = matrix_get(mat, i, 0);
+    arr_append(arr, &val);
+  }
+
+  return arr;
+}
