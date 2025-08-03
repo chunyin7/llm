@@ -26,7 +26,9 @@ void layer_norm_free(LayerNorm *ln) {
   free(ln);
 }
 
-void layer_norm_forward(LayerNorm *ln, Matrix *in) {
+Matrix *layer_norm_forward(LayerNorm *ln, Matrix *in) {
+  Matrix *out = matrix_init(in->rows, in->cols);
+  
   // layer norm each row
   for (size_t i = 0; i < in->rows; i++) {
     // calculate mean
@@ -54,7 +56,9 @@ void layer_norm_forward(LayerNorm *ln, Matrix *in) {
       val /= sqrt(var + ln->eps);
       val *= ((double *)ln->scale->data)[j];
       val += ((double *)ln->shift->data)[j];
-      matrix_set(in, i, j, val);
+      matrix_set(out, i, j, val);
     }
   }
+  
+  return out;
 }

@@ -4,7 +4,7 @@ A from-scratch implementation of a GPT (Generative Pre-trained Transformer) mode
 
 ## Project Status
 
-**Current Implementation: ~35% Complete**
+**Current Implementation: ~45% Complete**
 
 This project implements the foundational components of a GPT model with a focus on clarity and correctness. The core attention mechanism and tokenization systems are complete, but several key components remain to be implemented.
 
@@ -44,6 +44,19 @@ This project implements the foundational components of a GPT model with a focus 
   - Text encoding and decoding with word boundaries
   - Token embedding into matrices
 
+### Neural Network Layers
+- [x] **Layer Normalization** (`src/layer/layer_norm.c`)
+  - Pre-normalization with learnable scale and shift parameters
+  - Numerically stable variance computation
+  - Returns new matrix (non-destructive operation)
+  - Configurable epsilon for numerical stability
+
+- [x] **Feed-Forward Network** (`src/layer/feed_forward.c`)
+  - Two-layer MLP with 4x hidden dimension expansion
+  - GELU activation function with precise approximation
+  - Proper bias addition for both layers
+  - Memory-efficient intermediate computation
+
 ### Data Handling
 - [x] **Data Loader** (`src/loader/data_loader.c`)
   - Sliding window batch generation
@@ -75,16 +88,14 @@ make clean
 ## Missing Components (To Be Implemented)
 
 ### Critical Components
-- [ ] **Layer Normalization** - Essential for training stability
-- [ ] **Feed-Forward Network (MLP)** - Position-wise neural networks with GELU activation
 - [ ] **Positional Encoding** - Learned or sinusoidal position embeddings
 - [ ] **Transformer Block** - Integration of attention + FFN + layer norm + residuals
 - [ ] **Complete GPT Model** - Full model architecture with multiple layers
+- [ ] **Batch Processing** - Efficient batched operations for training and inference
 - [ ] **Training Loop** - Forward/backward pass with loss computation and optimization
 - [ ] **Text Generation** - Inference engine with sampling strategies
 
 ### Supporting Components
-- [ ] **Activation Functions** - GELU, ReLU implementations with derivatives
 - [ ] **Weight Initialization** - Xavier/He initialization schemes
 - [ ] **Loss Functions** - Cross-entropy loss for language modeling
 - [ ] **Optimizers** - Adam/SGD with gradient computation
@@ -95,12 +106,14 @@ make clean
 - [ ] **Performance Optimizations** - BLAS integration, SIMD vectorization
 - [ ] **Advanced Sampling** - Top-k, nucleus (top-p), temperature sampling
 - [ ] **Flash Attention** - Memory-efficient attention computation
+- [ ] **Dynamic Batching** - Variable sequence length batching with padding
 
 ## Architecture
 
 ```
 src/
 ├── attention/          # Multi-head self-attention mechanism
+├── layer/             # Neural network layers (layer norm, feed-forward)
 ├── loader/            # Data loading and batching
 ├── token/             # BPE tokenization and vocabulary
 └── util/              # Core utilities (matrix, array, tensor operations)
@@ -137,11 +150,12 @@ run/                   # Executable programs for vocab training and tokenization
 
 ## Next Steps
 
-1. **Layer Normalization** - Start with this as it's used throughout the transformer
-2. **Feed-Forward Network** - Implement the MLP layers with GELU activation
-3. **Transformer Block** - Combine attention + FFN + normalization + residuals
-4. **Position Embeddings** - Add positional information to token embeddings
-5. **Complete Model** - Stack transformer blocks into full GPT architecture
+1. **Positional Encoding** - Add positional information to token embeddings
+2. **Transformer Block** - Combine attention + FFN + normalization + residuals
+3. **Batch Processing** - Extend all operations to handle batched inputs efficiently
+4. **Complete Model** - Stack transformer blocks into full GPT architecture
+5. **Training Loop** - Implement forward/backward pass with optimization
+6. **Text Generation** - Add inference capabilities with sampling strategies
 
 ## Requirements
 

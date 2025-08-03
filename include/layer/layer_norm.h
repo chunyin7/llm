@@ -15,6 +15,6 @@ LayerNorm *layer_norm_init(double eps, size_t emb_dim);
 
 void layer_norm_free(LayerNorm *ln);
 
-void layer_norm_forward(LayerNorm *ln, Matrix *in);
+Matrix *layer_norm_forward(LayerNorm *ln, Matrix *in);
 
 #endif

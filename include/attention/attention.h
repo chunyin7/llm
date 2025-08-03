@@ -11,12 +11,12 @@ Matrix *attention_forward(
   Matrix *Wk,
   Matrix *Wv,
   Matrix *Wo,
-  float dropout_rate,
+  double dropout_rate,
   size_t n_heads
 );
 
 void apply_causal_mask(Matrix *scores);
 
-void apply_dropout_mask(Matrix *scores, float dropout_rate);
+void apply_dropout_mask(Matrix *scores, double dropout_rate);
 
 #endif
