@@ -1,4 +1,4 @@
-#include <layer/feed_forward.h>
+#include <transformer/feed_forward.h>
 #include <stdlib.h>
 #include <math.h>
 

@@ -1,11 +1,11 @@
 #ifndef TRANSFORMER
 #define TRANSFORMER
 
-#include <layer/feed_forward.h>
-#include <layer/layer_norm.h>
+#include <transformer/feed_forward.h>
+#include <transformer/layer_norm.h>
 #include <util/array.h>
 #include <util/matrix.h>
-#include <attention/attention.h>
+#include <transformer/attention.h>
 
 typedef struct {
   Attention *attention;

@@ -4,9 +4,9 @@ A from-scratch implementation of a GPT (Generative Pre-trained Transformer) mode
 
 ## Project Status
 
-**Current Implementation: ~45% Complete**
+**Current Implementation: ~55% Complete**
 
-This project implements the foundational components of a GPT model with a focus on clarity and correctness. The core attention mechanism and tokenization systems are complete, but several key components remain to be implemented.
+This project implements the foundational components of a GPT model with a focus on clarity and correctness. The core attention mechanism, transformer blocks, and tokenization systems are complete, with the main architecture now in place.
 
 ## Implemented Components
 
@@ -27,7 +27,7 @@ This project implements the foundational components of a GPT model with a focus 
   - Tensor concatenation for combining attention heads
 
 ### Multi-Head Self-Attention
-- [x] **Complete Attention Mechanism** (`src/attention/attention.c`)
+- [x] **Complete Attention Mechanism** (`src/transformer/attention.c`)
   - Scaled dot-product attention (Q, K, V projections)
   - Multi-head attention with proper head splitting
   - Causal masking for autoregressive generation
@@ -45,13 +45,13 @@ This project implements the foundational components of a GPT model with a focus 
   - Token embedding into matrices
 
 ### Neural Network Layers
-- [x] **Layer Normalization** (`src/layer/layer_norm.c`)
+- [x] **Layer Normalization** (`src/transformer/layer_norm.c`)
   - Pre-normalization with learnable scale and shift parameters
   - Numerically stable variance computation
   - Returns new matrix (non-destructive operation)
   - Configurable epsilon for numerical stability
 
-- [x] **Feed-Forward Network** (`src/layer/feed_forward.c`)
+- [x] **Feed-Forward Network** (`src/transformer/feed_forward.c`)
   - Two-layer MLP with 4x hidden dimension expansion
   - GELU activation function with precise approximation
   - Proper bias addition for both layers
@@ -89,7 +89,7 @@ make clean
 
 ### Critical Components
 - [ ] **Positional Encoding** - Learned or sinusoidal position embeddings
-- [ ] **Transformer Block** - Integration of attention + FFN + layer norm + residuals
+- [x] **Transformer Block** (`src/transformer/transformer.c`) - Integration of attention + FFN + layer norm + residuals
 - [ ] **Complete GPT Model** - Full model architecture with multiple layers
 - [ ] **Batch Processing** - Efficient batched operations for training and inference
 - [ ] **Training Loop** - Forward/backward pass with loss computation and optimization
@@ -112,13 +112,23 @@ make clean
 
 ```
 src/
-├── attention/          # Multi-head self-attention mechanism
-├── layer/             # Neural network layers (layer norm, feed-forward)
+├── transformer/       # Complete transformer components
+│   ├── attention.c    # Multi-head self-attention mechanism
+│   ├── feed_forward.c # Feed-forward neural network layers
+│   ├── layer_norm.c   # Layer normalization
+│   └── transformer.c  # Transformer block (attention + FFN + residuals)
 ├── loader/            # Data loading and batching
 ├── token/             # BPE tokenization and vocabulary
 └── util/              # Core utilities (matrix, array, tensor operations)
 
 include/               # Header files mirroring src/ structure
+├── transformer/       # Transformer component headers
+│   ├── attention.h
+│   ├── feed_forward.h
+│   ├── layer_norm.h
+│   └── transformer.h
+└── ...
+
 run/                   # Executable programs for vocab training and tokenization
 ```
 
@@ -151,7 +161,7 @@ run/                   # Executable programs for vocab training and tokenization
 ## Next Steps
 
 1. **Positional Encoding** - Add positional information to token embeddings
-2. **Transformer Block** - Combine attention + FFN + normalization + residuals
+2. **Positional Encoding** - Add positional information to token embeddings
 3. **Batch Processing** - Extend all operations to handle batched inputs efficiently
 4. **Complete Model** - Stack transformer blocks into full GPT architecture
 5. **Training Loop** - Implement forward/backward pass with optimization

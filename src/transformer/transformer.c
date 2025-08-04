@@ -1,4 +1,4 @@
-#include "attention/attention.h"
+#include <transformer/attention.h>
 #include <transformer/transformer.h>
 
 TransformerBlock *transformer_block_init(

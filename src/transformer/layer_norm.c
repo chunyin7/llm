@@ -1,4 +1,4 @@
-#include <layer/layer_norm.h>
+#include <transformer/layer_norm.h>
 #include <util/array.h>
 #include <util/matrix.h>
 #include <math.h>
