@@ -109,3 +109,13 @@ Array *matrix_to_arr(Matrix *mat) {
 
   return arr;
 }
+
+Matrix *matrix_dup(Matrix *mat) {
+  Matrix *new = matrix_init(mat->rows, mat->cols);
+  for (size_t i = 0; i < mat->rows; i++) {
+    for (size_t j = 0; j < mat->cols; j++) {
+        matrix_set(new, i, j, matrix_get(mat, i, j));
+    }
+  }
+  return new;
+}

@@ -4,15 +4,40 @@
 #include <util/tensor.h>
 #include <math.h>
 
+Attention *attention_init(size_t n_heads, size_t d_model, size_t dropout_rate) {
+  Attention *attention = malloc(sizeof(Attention));
+  attention->n_heads = n_heads;
+  attention->d_model = d_model;
+  attention->Wq = matrix_init(d_model, d_model);
+  attention->Wk = matrix_init(d_model, d_model);
+  attention->Wv = matrix_init(d_model, d_model);
+  attention->Wo = matrix_init(d_model, d_model);
+  attention->dropout_rate = dropout_rate;
+  return attention;
+}
+
+void attention_free(Attention *attention) {
+  matrix_free(attention->Wq);
+  matrix_free(attention->Wk);
+  matrix_free(attention->Wv);
+  matrix_free(attention->Wo);
+  free(attention);
+}
+
+
+
 Matrix *attention_forward(
-  Matrix *token_embedding_matrix,
-  Matrix *Wq,
-  Matrix *Wk,
-  Matrix *Wv,
-  Matrix *Wo,
-  float dropout_rate,
-  size_t n_heads
+  Attention *attention,
+  Matrix *token_embedding_matrix
 ) {
+  // destructure attention block
+  Matrix *Wq = attention->Wq;
+  Matrix *Wk = attention->Wk;
+  Matrix *Wv = attention->Wv;
+  Matrix *Wo = attention->Wo;
+  size_t n_heads = attention->n_heads;
+  size_t dropout_rate = attention->dropout_rate;
+
   // compute attention scores
   Matrix *Q = matrix_multiply(token_embedding_matrix, Wq);
   Matrix *K = matrix_multiply(token_embedding_matrix, Wk);
@@ -108,10 +133,10 @@ void apply_causal_mask(Matrix *scores) {
   }
 }
 
-void apply_dropout_mask(Matrix *scores, float dropout_rate) {
+void apply_dropout_mask(Matrix *scores, double dropout_rate) {
   for (size_t i = 0; i < scores->rows; i++) {
     for (size_t j = 0; j < scores->cols; j++) {
-      if (rand() / (float)RAND_MAX < dropout_rate) {
+      if (rand() / (double)RAND_MAX < dropout_rate) {
         matrix_set(scores, i, j, 0);
       } else {
         // scale the scores by 1/(1-p)

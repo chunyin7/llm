@@ -32,4 +32,6 @@ Matrix *arr_to_matrix(Array *arr);
 // convert a matrix to a (double) array
 Array *matrix_to_arr(Matrix *mat);
 
+Matrix *matrix_dup(Matrix *mat);
+
 #endif
