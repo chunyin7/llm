@@ -24,8 +24,6 @@ void attention_free(Attention *attention) {
   free(attention);
 }
 
-
-
 Matrix *attention_forward(
   Attention *attention,
   Matrix *token_embedding_matrix
